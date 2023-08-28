@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "430325452868",
+    "project_id": "macc-project-40f1c",
+    "storage_bucket": "macc-project-40f1c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:430325452868:android:a2428100764dfb711f2c11",
+        "android_client_info": {
+          "package_name": "com.example.macc_project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "430325452868-l6ptmd66uqabv40c9gqtgn5kvc1jl6a0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIXnb3puDS1RaiQ340-DjfMyzPeyZmaGQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "430325452868-l6ptmd66uqabv40c9gqtgn5kvc1jl6a0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
