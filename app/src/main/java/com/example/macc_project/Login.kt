@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
@@ -30,6 +31,10 @@ class Login : AppCompatActivity() {
         btnLogin.setOnClickListener {
 
             loginUser()
+        }
+        val googleButton = findViewById<ImageView>(R.id.googleButton)
+        googleButton.setOnClickListener {
+            goToGoogleSignIn()
         }
     }
 
@@ -69,5 +74,9 @@ class Login : AppCompatActivity() {
             }
 
 
+    }
+    private fun goToGoogleSignIn(){
+        val intent = Intent(this, GoogleSignIn::class.java)
+        startActivity(intent)
     }
 }
