@@ -30,11 +30,7 @@ class GoogleSignIn : AppCompatActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, gso)
         auth = Firebase.auth
 
-        val googleButton = findViewById<ImageView>(R.id.googleButton)
-        googleButton.setOnClickListener {
-            signIn()
-        }
-
+       signIn()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -50,7 +46,7 @@ class GoogleSignIn : AppCompatActivity() {
                 firebaseAuthWithGoogle(account.idToken!!)
             } catch (e: ApiException) {
                 // Google Sign In failed, update UI appropriately
-                Log.w(TAG, "Google sign in failed", e)
+                Log.w(TAG, "Google sign is failed", e)
             }
         }
     }
@@ -62,9 +58,9 @@ class GoogleSignIn : AppCompatActivity() {
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithCredential:success")
-                    /*val userFirebase = auth.currentUser
-                    if(userFirebase != null) {
-                        addUserToDB
+                    val userFirebase = auth.currentUser
+                    /*if(userFirebase != null) {
+                        addUserToDB(userFirebase)
                     }*/
                 } else {
                     // If sign in fails, display a message to the user.
