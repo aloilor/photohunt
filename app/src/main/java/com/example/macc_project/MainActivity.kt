@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
+
         Handler(Looper.getMainLooper()).postDelayed({
             val intent = Intent(this, Login::class.java)
             startActivity(intent)
