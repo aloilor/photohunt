@@ -1,5 +1,6 @@
 package com.example.macc_project
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -32,6 +33,11 @@ class ServerRequest : AppCompatActivity() {
         binding.serverButton.setOnClickListener {
             postRequest("Ciaooo",url)
         }
+
+        /*
+        val Hunt1 = Intent(this, Hunt1Activity::class.java)
+       startActivity(Hunt1)
+        */
 
     }
     private fun buildRequestBody(msg: String): RequestBody {
