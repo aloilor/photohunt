@@ -48,7 +48,7 @@ class GoogleSignIn : AppCompatActivity() {
                 firebaseAuthWithGoogle(account.idToken!!)
             } catch (e: ApiException) {
                 // Google Sign In failed, update UI appropriately
-                Log.w(TAG, "Google sign in failed", e)
+                Log.w(TAG, "Google sign is failed", e)
             }
         }
     }

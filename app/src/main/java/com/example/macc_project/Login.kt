@@ -44,7 +44,7 @@ class Login : AppCompatActivity() {
         val user = Firebase.auth.currentUser
 
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please fill all fiels", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT)
                 .show()
             return
         }
