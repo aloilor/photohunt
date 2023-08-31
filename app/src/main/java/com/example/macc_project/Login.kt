@@ -8,33 +8,39 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import com.example.macc_project.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
 class Login : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
+    private lateinit var  binding: ActivityLoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         auth = Firebase.auth
 
-        val btnSignUpNow = findViewById<TextView>(R.id.signupText)
-        btnSignUpNow.setOnClickListener {
+
+        binding.signupText.setOnClickListener {
             Intent(this, Register::class.java).also {
                 startActivity(it)
             }
         }
-        val btnLogin = findViewById<Button>(R.id.LoginButton)
-        btnLogin.setOnClickListener {
-
+       binding.LoginButton.setOnClickListener {
             loginUser()
         }
-        val googleButton = findViewById<ImageView>(R.id.googleButton)
-        googleButton.setOnClickListener {
+
+        binding.googleButton.setOnClickListener {
             goToGoogleSignIn()
+        }
+        binding.githubButton.setOnClickListener {
+           goToGithubSignIn()
         }
     }
 
@@ -77,6 +83,10 @@ class Login : AppCompatActivity() {
     }
     private fun goToGoogleSignIn(){
         val intent = Intent(this, GoogleSignIn::class.java)
+        startActivity(intent)
+    }
+    private fun goToGithubSignIn(){
+        val intent = Intent(this, GithubSignIn::class.java)
         startActivity(intent)
     }
 }
