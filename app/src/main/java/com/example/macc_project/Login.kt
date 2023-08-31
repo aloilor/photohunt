@@ -52,7 +52,7 @@ class Login : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success
-                    val it = Intent(this, StartGame::class.java)
+                    val it = Intent(this, ServerRequest::class.java)
                     startActivity(it)
 
 

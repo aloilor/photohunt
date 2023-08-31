@@ -1,11 +1,9 @@
 package com.example.macc_project
 
-import android.content.ContentValues.TAG
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -64,7 +62,7 @@ class GoogleSignIn : AppCompatActivity() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "Login with Google success")
                     val userFirebase = auth.currentUser
-                    val intent = Intent(this, StartGame::class.java)
+                    val intent = Intent(this, ServerRequest::class.java)
                     startActivity(intent)
 
                 } else {

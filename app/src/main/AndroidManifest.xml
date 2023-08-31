@@ -17,7 +17,7 @@
             android:name=".GoogleSignIn"
             android:exported="false" />
         <activity
-            android:name=".StartGame"
+            android:name=".ServerRequest"
             android:exported="false" />
         <activity
             android:name=".Register"
