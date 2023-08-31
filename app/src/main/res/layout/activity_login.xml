@@ -92,11 +92,14 @@
 
         <ImageView
             android:id="@+id/googleButton"
+            android:clickable="true"
+            android:focusable="true"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginTop="6dp"
             android:layout_marginRight="10dp"
-            android:src="@drawable/googleimage"/>
+            android:contentDescription="Sign In with Google"
+            android:background="@drawable/googleimage" />
 
         <ImageView
         android:id="@+id/githubButton"
