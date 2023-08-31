@@ -15,7 +15,6 @@ import com.google.android.material.snackbar.Snackbar
 class Hunt1Activity : AppCompatActivity() {
     private val CAMERA_PERMISSION_CODE = 101
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hunt1)
