@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.macc_project.databinding.ActivityHunt1Binding
 import com.google.android.material.snackbar.Snackbar
@@ -89,6 +90,31 @@ class Hunt1Activity : AppCompatActivity() {
             val baos = ByteArrayOutputStream()
             imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
             val data = baos.toByteArray()
+
+            // Upload the image to Firebase Storage
+            val uploadTask = storageRef.putBytes(data)
+            /*
+            uploadTask.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    storageRef.downloadUrl.addOnSuccessListener { uri ->
+                        val downloadUrl = uri.toString()
+                        Log.d("MainActivity", "Download URL: $downloadUrl")
+
+                        // Use the downloadUrl with Glide to load and display the image
+                        Glide.with(this)
+                            .load(downloadUrl)
+                            .error(R.drawable.img) // Set an error image if loading fails
+                            .into(binding.image)
+
+                        Toast.makeText(this, "Image uploaded successfully", Toast.LENGTH_SHORT)
+                            .show()
+                        // You can save the downloadUrl or use it to display the image later
+                    } } else {
+                    // Image upload failed
+                    val exception = task.exception
+                    // Handle the exception
+            */
         }
+
     }
 }
