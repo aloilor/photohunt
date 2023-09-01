@@ -62,14 +62,14 @@ class GoogleSignIn : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "signInWithCredential:success")
+                    Log.d(TAG, "Login with google success")
                     val userFirebase = auth.currentUser
                     val intent = Intent(this, StartGame::class.java)
                     startActivity(intent)
 
                 } else {
                     // If sign in fails, display a message to the user.
-                    Log.w(TAG, "signInWithCredential:failure", task.exception)
+                    Log.w(TAG, "Login with google failure", task.exception)
                 }
             }
     }
