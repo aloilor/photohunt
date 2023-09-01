@@ -34,6 +34,8 @@ class Hunt1Activity : AppCompatActivity() {
     private val CAMERA_PERMISSION_CODE = 101
     private val REQUEST_IMAGE_CAPTURE = 1
 
+
+
     private lateinit var storage: FirebaseStorage
     private lateinit var binding: ActivityHunt1Binding
     private lateinit var apiService: ApiService
@@ -60,8 +62,6 @@ class Hunt1Activity : AppCompatActivity() {
             openCamera()
         }
 
-
-
     }
 
     private fun getPermissions() {
@@ -73,6 +73,26 @@ class Hunt1Activity : AppCompatActivity() {
         } else {
             Log.w("camera", "permission granted")
         }
+
+
+        //COARSE LOCATION
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), 1)
+        } else {
+            Log.w("COARSE_LOCATION", "permission granted")
+        }
+
+        //FINE LOCATION
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1 )
+        } else {
+            Log.w("FINE_LOCATION", "permission granted")
+        }
+
     }
 
     // Handle permission request results
