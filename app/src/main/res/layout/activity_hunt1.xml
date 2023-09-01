@@ -9,17 +9,19 @@
     android:orientation="vertical"
     tools:context=".Hunt1Activity">
 
+
     <Button
         android:id="@+id/btnPic"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_alignParentStart="true"
-
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="2dp"
+        android:layout_marginStart="0dp"
         android:layout_marginTop="573dp"
-        android:text="@string/take_picture" />
+        android:backgroundTint="@color/green"
+        android:text="Take a Picture"
+        android:textSize="18sp"
+        app:cornerRadius="20dp" />
 
     <ImageView
         android:id="@+id/image"

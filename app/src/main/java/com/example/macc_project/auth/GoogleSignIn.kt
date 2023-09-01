@@ -62,7 +62,7 @@ class GoogleSignIn : AppCompatActivity() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "Login with google success")
                     val userFirebase = auth.currentUser
-                    val intent = Intent(this, ServerRequest::class.java)
+                    val intent = Intent(this, Hunt1Activity::class.java)
                     startActivity(intent)
 
                 } else {
