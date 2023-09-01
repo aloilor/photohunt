@@ -18,22 +18,39 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.example.macc_project.databinding.ActivityHunt1Binding
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.storage.FirebaseStorage
+import retrofit2.Callback
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 
 
 class Hunt1Activity : AppCompatActivity() {
     private val CAMERA_PERMISSION_CODE = 101
     private val REQUEST_IMAGE_CAPTURE = 1
+
     private lateinit var storage: FirebaseStorage
-
     private lateinit var binding: ActivityHunt1Binding
-
+    private lateinit var apiService: ApiService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHunt1Binding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        // Initialize Retrofit
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://192.168.1.64:5000/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        apiService = retrofit.create(ApiService::class.java)
 
         storage = FirebaseStorage.getInstance()
 
@@ -42,6 +59,8 @@ class Hunt1Activity : AppCompatActivity() {
         binding.btnPic.setOnClickListener {
             openCamera()
         }
+
+
 
     }
 
@@ -86,10 +105,11 @@ class Hunt1Activity : AppCompatActivity() {
             binding.image.setImageBitmap(imageBitmap)
             val fileName = "image_${System.currentTimeMillis()}.jpg"
             val storageRef = storage.reference.child("images").child(fileName)
+
             // Convert the Bitmap to a byte array
-            val baos = ByteArrayOutputStream()
-            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-            val data = baos.toByteArray()
+            val data = convertBitmapToByteArray(imageBitmap)
+            //Upload the image to the server
+            uploadImageToServer(data)
 
             // Upload the image to Firebase Storage
             val uploadTask = storageRef.putBytes(data)
@@ -116,5 +136,40 @@ class Hunt1Activity : AppCompatActivity() {
             */
         }
 
+    }
+    private fun uploadImageToServer(data: ByteArray){
+        val mediaType = "image/jpeg".toMediaTypeOrNull()
+        val requestFile = RequestBody.create(mediaType, data)
+        val body = MultipartBody.Part.createFormData("file", "image.jpg", requestFile)
+
+        apiService.uploadImage(body).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+
+                if (response.isSuccessful) {
+                    val toastMessage = "image uploaded to the server"
+                    showToast(toastMessage)
+
+                } else {
+                    val toastMessage = "Upload Image Failed"
+                    showToast(toastMessage)
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                val toastMessage = "Upload Image Failed"
+                showToast(toastMessage)
+            }
+        })
+    }
+    private fun convertBitmapToByteArray(bitmap: Bitmap): ByteArray {
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        return baos.toByteArray()
+    }
+    private fun showToast(msg:String){
+        Toast.makeText(this,msg, Toast.LENGTH_SHORT).show()
+    }
+    companion object {
+        const val TAG = "Hunt1Activity"
     }
 }
