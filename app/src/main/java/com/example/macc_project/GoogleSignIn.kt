@@ -1,11 +1,9 @@
 package com.example.macc_project
 
-import android.content.ContentValues.TAG
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -50,7 +48,7 @@ class GoogleSignIn : AppCompatActivity() {
                 firebaseAuthWithGoogle(account.idToken!!)
             } catch (e: ApiException) {
                 // Google Sign In failed, update UI appropriately
-                Log.w(TAG, "Google sign in failed", e)
+                Log.w(TAG, "Google sign is failed", e)
             }
         }
     }
@@ -64,12 +62,12 @@ class GoogleSignIn : AppCompatActivity() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "Login with google success")
                     val userFirebase = auth.currentUser
-                    val intent = Intent(this, StartGame::class.java)
+                    val intent = Intent(this, ServerRequest::class.java)
                     startActivity(intent)
 
                 } else {
                     // If sign in fails, display a message to the user.
-                    Log.w(TAG, "Login with google failure", task.exception)
+                    Log.w(TAG, "Login with Google failed ", task.exception)
                 }
             }
     }
