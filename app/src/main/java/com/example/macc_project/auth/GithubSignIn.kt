@@ -1,12 +1,13 @@
-package com.example.macc_project
+package com.example.macc_project.auth
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import com.example.macc_project.Hunt1Activity
+import com.example.macc_project.Login
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.OAuthProvider
-import com.google.firebase.auth.OAuthProvider.Builder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -41,6 +42,7 @@ class GithubSignIn : AppCompatActivity() {
                     // ((OAuthCredential)authResult.getCredential()).getAccessToken().
                     // The OAuth secret can be retrieved by calling:
                     // ((OAuthCredential)authResult.getCredential()).getSecret().
+
                 }
                 .addOnFailureListener {
                     Log.w(TAG, "Login with GitHub failed")
@@ -94,7 +96,7 @@ class GithubSignIn : AppCompatActivity() {
             }
     }*/
     private fun gotToStartGame(){
-        val intent = Intent(this, Login::class.java)
+        val intent = Intent(this, Hunt1Activity::class.java)
         startActivity(intent)
     }
     companion object{
