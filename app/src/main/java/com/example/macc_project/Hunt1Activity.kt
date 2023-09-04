@@ -1,39 +1,60 @@
 package com.example.macc_project
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.location.Location
+import android.location.LocationManager
+import android.location.LocationRequest
+import android.location.LocationRequest.QUALITY_HIGH_ACCURACY
 import android.os.Bundle
+import android.os.Looper
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import android.view.View
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat
 import com.example.macc_project.databinding.ActivityHunt1Binding
-import com.google.android.material.snackbar.Snackbar
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.firebase.storage.FirebaseStorage
-import retrofit2.Callback
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
+import java.security.AccessController.getContext
 
 
 class Hunt1Activity : AppCompatActivity() {
-    private val CAMERA_PERMISSION_CODE = 101
     private val REQUEST_IMAGE_CAPTURE = 1
 
+    val PERMISSIONS_ALL = arrayOf<String>(
+        Manifest.permission.CAMERA,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    )
+
+    private var mFusedLocationClient: FusedLocationProviderClient? = null
+    private var longitude: Double = 0.0
+    private var latitude: Double = 0.0
+    private lateinit var mLocationRequest: LocationRequest
+    private val interval: Long = 10000 // 10seconds
+    private val fastestInterval: Long = 5000 // 5 seconds
+    private lateinit var mLastLocation: Location
+    private val requestPermissionCode = 999
 
 
     private lateinit var storage: FirebaseStorage
@@ -46,6 +67,8 @@ class Hunt1Activity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        getPermissions(PERMISSIONS_ALL)
+
         // Initialize Retrofit
         val retrofit = Retrofit.Builder()
             .baseUrl("http://192.168.1.64:5000/")
@@ -56,7 +79,9 @@ class Hunt1Activity : AppCompatActivity() {
 
         storage = FirebaseStorage.getInstance()
 
-        getPermissions()
+
+
+        getLastLocation()
 
         binding.btnPic.setOnClickListener {
             openCamera()
@@ -64,36 +89,70 @@ class Hunt1Activity : AppCompatActivity() {
 
     }
 
-    private fun getPermissions() {
-        // Check and request camera permission if not granted
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_CODE)
-        } else {
-            Log.w("camera", "permission granted")
-        }
+    private fun isLocationEnabled(): Boolean {
+        var locationManager: LocationManager =
+            getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER
 
-        //COARSE LOCATION
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), 1)
-        } else {
-            Log.w("COARSE_LOCATION", "permission granted")
-        }
-
-        //FINE LOCATION
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1 )
-        } else {
-            Log.w("FINE_LOCATION", "permission granted")
-        }
-
+        )
     }
+
+    @SuppressLint("MissingPermission")
+
+    private fun getLastLocation() {
+
+        if (isLocationEnabled()) {
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            mLocationRequest = LocationRequest.Builder(interval).setIntervalMillis(interval).setMinUpdateIntervalMillis(fastestInterval).setQuality(QUALITY_HIGH_ACCURACY).build()
+            mFusedLocationClient?.lastLocation?.addOnCompleteListener(this) { task ->
+                var location: Location? = task.result
+                if (location == null) {
+                    //requestNewLocationData()
+
+
+                } else {
+                    latitude = location.latitude
+                    longitude = location.longitude
+
+                    binding.latitudeText.text = "Latitude: $latitude"
+                    binding.longitudeText.text = "Longitude: $longitude"
+                }
+            }
+        } else {
+            Toast.makeText(this, "Turn on location", Toast.LENGTH_LONG).show()
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            startActivity(intent)
+        }
+    }
+
+
+    /*
+    private fun requestNewLocationData() {
+        var mLocationRequest = LocationRequest.Builder( 1000)
+        mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        mLocationRequest.interval = 0
+        mLocationRequest.fastestInterval = 0
+        mLocationRequest.numUpdates = 1
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        mFusedLocationClient!!.requestLocationUpdates(
+            mLocationRequest, mLocationCallback,
+            Looper.myLooper()
+        )
+    }*/
+
+    private fun getPermissions(permissions: Array<String>) {
+
+        permissions.forEach {
+            if (ContextCompat.checkSelfPermission(this, it)
+                != PackageManager.PERMISSION_GRANTED)
+                requestPermissions(arrayOf(it), 1)
+        }
+    }
+
+
 
     // Handle permission request results
     override fun onRequestPermissionsResult(
@@ -102,10 +161,10 @@ class Hunt1Activity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == CAMERA_PERMISSION_CODE) {
+        if (requestCode == 1) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, you can now proceed with camera or storage operations
-            } else getPermissions()
+            } else getPermissions(PERMISSIONS_ALL)
         }
     }
 
