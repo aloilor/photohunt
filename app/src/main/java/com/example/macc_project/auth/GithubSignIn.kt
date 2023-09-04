@@ -1,14 +1,17 @@
 package com.example.macc_project.auth
 
+import android.content.ContentValues
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import com.example.macc_project.Hunt1Activity
-import com.example.macc_project.Login
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class GithubSignIn : AppCompatActivity() {
@@ -51,9 +54,11 @@ class GithubSignIn : AppCompatActivity() {
             auth
                 .startActivityForSignInWithProvider(this, provider.build())
                 .addOnSuccessListener {
-                    //val userFirebase = auth.currentUser
                     Log.d(TAG, "Login with GitHub success")
-                    gotToStartGame()
+                    val userFirebase = auth.currentUser
+                    if(userFirebase != null){
+                        addUserToDB(userFirebase)
+                    }
                 }
                 .addOnFailureListener {
                     Log.w(TAG, "Login with GitHub failed")
@@ -98,6 +103,24 @@ class GithubSignIn : AppCompatActivity() {
     private fun gotToStartGame(){
         val intent = Intent(this, Hunt1Activity::class.java)
         startActivity(intent)
+    }
+    private fun addUserToDB(currentUser: FirebaseUser){
+        val db = Firebase.firestore
+
+        val user = hashMapOf(
+            "email" to currentUser.email,
+        )
+
+        db.collection("users").document(currentUser.uid)
+            .set(user)
+            .addOnSuccessListener {
+                gotToStartGame()
+                Toast.makeText(
+                    baseContext, "User logged with GitHub",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error during the registration", e) }
     }
     companion object{
        const val TAG = "GithubActivity"
