@@ -10,8 +10,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.location.Location
 import android.location.LocationManager
-import android.location.LocationRequest
-import android.location.LocationRequest.QUALITY_HIGH_ACCURACY
+import com.google.android.gms.location.LocationRequest
 import android.os.Bundle
 import android.os.Looper
 import android.provider.MediaStore
@@ -23,6 +22,8 @@ import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import com.example.macc_project.databinding.ActivityHunt1Binding
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.firebase.storage.FirebaseStorage
@@ -47,14 +48,14 @@ class Hunt1Activity : AppCompatActivity() {
         Manifest.permission.ACCESS_FINE_LOCATION
     )
 
-    private var mFusedLocationClient: FusedLocationProviderClient? = null
+    private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private var longitude: Double = 0.0
     private var latitude: Double = 0.0
     private lateinit var mLocationRequest: LocationRequest
-    private val interval: Long = 10000 // 10seconds
+    private val interval: Long = 3000 // 10seconds
     private val fastestInterval: Long = 5000 // 5 seconds
-    private lateinit var mLastLocation: Location
-    private val requestPermissionCode = 999
+    private lateinit var mLocationCallback: LocationCallback
+    private lateinit var mLastLocation : Location
 
 
     private lateinit var storage: FirebaseStorage
@@ -68,6 +69,21 @@ class Hunt1Activity : AppCompatActivity() {
         setContentView(view)
 
         getPermissions(PERMISSIONS_ALL)
+
+        mLocationCallback = object : LocationCallback() {
+            override fun onLocationResult(p0: LocationResult) {
+                p0 ?: return
+                for (location in p0.locations){
+                    latitude = location.latitude
+                    longitude = location.longitude
+                    Log.w("lat+long,update:","Latitude: $latitude" )
+                    Log.w("lat+long,update:","Latitude: $longitude" )
+
+                    binding.latitudeText.text = "Latitude: $latitude"
+                    binding.longitudeText.text = "Longitude: $longitude"
+                }
+            }
+        }
 
         // Initialize Retrofit
         val retrofit = Retrofit.Builder()
@@ -100,25 +116,23 @@ class Hunt1Activity : AppCompatActivity() {
     }
 
     @SuppressLint("MissingPermission")
-
     private fun getLastLocation() {
 
         if (isLocationEnabled()) {
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-            mLocationRequest = LocationRequest.Builder(interval).setIntervalMillis(interval).setMinUpdateIntervalMillis(fastestInterval).setQuality(QUALITY_HIGH_ACCURACY).build()
-            mFusedLocationClient?.lastLocation?.addOnCompleteListener(this) { task ->
-                var location: Location? = task.result
-                if (location == null) {
-                    //requestNewLocationData()
-
+            mLocationRequest = LocationRequest.Builder(interval).setIntervalMillis(interval).setMinUpdateIntervalMillis(fastestInterval).setPriority(Priority.PRIORITY_HIGH_ACCURACY).build()
+            mFusedLocationClient.lastLocation.addOnCompleteListener(this) { task ->
+                var mLastLocation: Location = task.result
+                if (mLastLocation == null) {
 
                 } else {
-                    latitude = location.latitude
-                    longitude = location.longitude
+                    latitude = mLastLocation.latitude
+                    longitude = mLastLocation.longitude
 
                     binding.latitudeText.text = "Latitude: $latitude"
                     binding.longitudeText.text = "Longitude: $longitude"
                 }
+                startLocationUpdates()
             }
         } else {
             Toast.makeText(this, "Turn on location", Toast.LENGTH_LONG).show()
@@ -128,20 +142,13 @@ class Hunt1Activity : AppCompatActivity() {
     }
 
 
-    /*
-    private fun requestNewLocationData() {
-        var mLocationRequest = LocationRequest.Builder( 1000)
-        mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        mLocationRequest.interval = 0
-        mLocationRequest.fastestInterval = 0
-        mLocationRequest.numUpdates = 1
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        mFusedLocationClient!!.requestLocationUpdates(
+    @SuppressLint("MissingPermission")
+    private fun startLocationUpdates() {
+        mFusedLocationClient.requestLocationUpdates(
             mLocationRequest, mLocationCallback,
-            Looper.myLooper()
+            Looper.getMainLooper()
         )
-    }*/
+    }
 
     private fun getPermissions(permissions: Array<String>) {
 
