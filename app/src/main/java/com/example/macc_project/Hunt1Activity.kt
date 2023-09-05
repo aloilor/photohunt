@@ -262,7 +262,7 @@ class Hunt1Activity : AppCompatActivity() {
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val imageBitmap: Bitmap = BitmapFactory.decodeFile(photoFile.path)
+                    val imageBitmap: Bitmap  = BitmapFactory.decodeFile(photoFile.path)
                     // Convert the Bitmap to a byte array
                     val data = convertBitmapToByteArray(imageBitmap)
 
