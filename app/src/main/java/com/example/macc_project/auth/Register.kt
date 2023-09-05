@@ -1,13 +1,18 @@
 package com.example.macc_project
 
+import android.content.ContentValues.TAG
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.core.content.ContextCompat.startActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class Register : AppCompatActivity() {
@@ -42,8 +47,10 @@ class Register : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success
-                    val it = Intent(this, Login::class.java)
-                    startActivity(it)
+                    val userFirebase = auth.currentUser
+                    if(userFirebase != null) {
+                        addUserToDB(userFirebase)
+                    }
 
                     Toast.makeText(
                         baseContext,
@@ -62,5 +69,28 @@ class Register : AppCompatActivity() {
             }
 
 
+    }
+    private fun addUserToDB(currentUser:FirebaseUser){
+        val db = Firebase.firestore
+
+        val user = hashMapOf(
+            "email" to currentUser.email,
+        )
+
+        db.collection("users").document(currentUser.uid)
+            .set(user)
+            .addOnSuccessListener {
+                goToLogin()
+                Toast.makeText(
+                    baseContext, "User correctly registered",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .addOnFailureListener { e -> Log.w(TAG, "Error during the registration", e) }
+    }
+
+    private fun goToLogin(){
+        val intent = Intent(this, Login::class.java)
+        startActivity(intent)
     }
 }

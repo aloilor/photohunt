@@ -1,17 +1,21 @@
 package com.example.macc_project
 
+import android.content.ContentValues
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 
@@ -62,8 +66,11 @@ class GoogleSignIn : AppCompatActivity() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "Login with google success")
                     val userFirebase = auth.currentUser
-                    val intent = Intent(this, Hunt1Activity::class.java)
-                    startActivity(intent)
+                    if(userFirebase != null){
+                        addUserToDB(userFirebase)
+                    }
+
+
 
                 } else {
                     // If sign in fails, display a message to the user.
@@ -75,6 +82,29 @@ class GoogleSignIn : AppCompatActivity() {
     private fun signIn() {
         val signInIntent = googleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
+    }
+    private fun goToHunt1Activity(){
+        val intent = Intent(this, Hunt1Activity::class.java)
+        startActivity(intent)
+
+    }
+    private fun addUserToDB(currentUser: FirebaseUser){
+        val db = Firebase.firestore
+
+        val user = hashMapOf(
+            "email" to currentUser.email,
+        )
+
+        db.collection("users").document(currentUser.uid)
+            .set(user)
+            .addOnSuccessListener {
+                goToHunt1Activity()
+                Toast.makeText(
+                    baseContext, "User logged with google",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error during the registration", e) }
     }
 
 
