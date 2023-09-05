@@ -78,7 +78,6 @@ class Hunt1Activity : AppCompatActivity() {
                     longitude = location.longitude
                     Log.w("lat+long,update:","Latitude: $latitude" )
                     Log.w("lat+long,update:","Latitude: $longitude" )
-
                     binding.latitudeText.text = "Latitude: $latitude"
                     binding.longitudeText.text = "Longitude: $longitude"
                 }
@@ -95,11 +94,9 @@ class Hunt1Activity : AppCompatActivity() {
 
         storage = FirebaseStorage.getInstance()
 
-
-
         getLastLocation()
 
-        binding.btnPic.setOnClickListener {
+        binding.cameraCaptureButton.setOnClickListener {
             openCamera()
         }
 
@@ -122,7 +119,7 @@ class Hunt1Activity : AppCompatActivity() {
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
             mLocationRequest = LocationRequest.Builder(interval).setIntervalMillis(interval).setMinUpdateIntervalMillis(fastestInterval).setPriority(Priority.PRIORITY_HIGH_ACCURACY).build()
             mFusedLocationClient.lastLocation.addOnCompleteListener(this) { task ->
-                var mLastLocation: Location = task.result
+                mLastLocation = task.result
                 if (mLastLocation == null) {
 
                 } else {
@@ -141,7 +138,6 @@ class Hunt1Activity : AppCompatActivity() {
         }
     }
 
-
     @SuppressLint("MissingPermission")
     private fun startLocationUpdates() {
         mFusedLocationClient.requestLocationUpdates(
@@ -159,8 +155,6 @@ class Hunt1Activity : AppCompatActivity() {
         }
     }
 
-
-
     // Handle permission request results
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -176,19 +170,23 @@ class Hunt1Activity : AppCompatActivity() {
     }
 
     private fun openCamera() {
+        /*
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         try {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
         } catch (e: ActivityNotFoundException) {
             // display error state to the user
-        }
+        }*/
+
+
+        //val preview = Preview.Builder().build()
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             val imageBitmap = data?.extras?.get("data") as Bitmap
-            binding.image.setImageBitmap(imageBitmap)
             val fileName = "image_${System.currentTimeMillis()}.jpg"
             val storageRef = storage.reference.child("images").child(fileName)
 
