@@ -122,6 +122,7 @@ class GithubSignIn : AppCompatActivity() {
             }
             .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error during the registration", e) }
     }
+
     companion object{
        const val TAG = "GithubActivity"
     }
