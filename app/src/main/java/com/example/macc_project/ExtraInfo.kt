@@ -52,23 +52,27 @@ class ExtraInfo {
         override fun run() {
             milliseconds += 10
             if (milliseconds == 100) {
-                deciseconds ++
+                deciseconds++
+                milliseconds = 0
             }
             if (deciseconds == 10){
                 seconds++
                 deciseconds = 0
             }
             if (seconds == 60){
-                minutes ++
+                minutes++
                 seconds = 0
             }
+            println("$minutes :: $seconds :: $deciseconds :: $milliseconds")
             timerUpdateListener?.onTimerUpdate(minutes, seconds, deciseconds, milliseconds)
             handler.postDelayed(this,10)
         }
     }
 
     fun startTimer() {
+        println("Timer started")
         handler.post(updateTimer)
+
     }
 
     fun stopTimer() {

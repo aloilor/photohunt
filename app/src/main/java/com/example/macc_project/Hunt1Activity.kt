@@ -30,6 +30,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.storage.FirebaseStorage
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -59,6 +60,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
 
+    private var listener: ListenerRegistration?= null
 
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private var longitude: Double = 0.0
@@ -122,6 +124,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     }
 
     override fun onTimerUpdate(minutes: Int, seconds: Int, deciseconds: Int, milliseconds: Int) {
+        //println("Timer Update, $milliseconds")
         binding.timerText.text = String.format("%02d:%02d", minutes, seconds)
     }
 
