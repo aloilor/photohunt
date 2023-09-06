@@ -93,6 +93,7 @@ class GoogleSignIn : AppCompatActivity() {
 
         val user = hashMapOf(
             "email" to currentUser.email,
+            "username" to currentUser.displayName!!.replace(" ", "")
         )
 
         db.collection("users").document(currentUser.uid)

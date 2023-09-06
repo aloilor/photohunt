@@ -34,11 +34,18 @@ class Register : AppCompatActivity() {
 
 
     private fun registerUser() {
-        val email = findViewById<EditText>(R.id.RegisterUsername).text.toString()
+        val email = findViewById<EditText>(R.id.RegisterEmail).text.toString()
+        val username = findViewById<EditText>(R.id.RegisterUsername).text.toString()
         val password = findViewById<EditText>(R.id.RegisterPassword).text.toString()
+        val confPsw = findViewById<EditText>(R.id.RegisterConfirm).text.toString()
 
-        if (email.isEmpty() || password.isEmpty()) {
+        if (email.isEmpty() || password.isEmpty() || username.isEmpty() || confPsw.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT)
+                .show()
+            return
+        }
+        if(password != confPsw){
+            Toast.makeText(this, "Passwords don't match", Toast.LENGTH_SHORT)
                 .show()
             return
         }
@@ -49,7 +56,7 @@ class Register : AppCompatActivity() {
                     // Sign in success
                     val userFirebase = auth.currentUser
                     if(userFirebase != null) {
-                        addUserToDB(userFirebase)
+                        addUserToDB(userFirebase,username)
                     }
 
                     Toast.makeText(
@@ -70,11 +77,13 @@ class Register : AppCompatActivity() {
 
 
     }
-    private fun addUserToDB(currentUser:FirebaseUser){
+    private fun addUserToDB(currentUser:FirebaseUser, username : String){
         val db = Firebase.firestore
 
         val user = hashMapOf(
             "email" to currentUser.email,
+            "username" to username,
+
         )
 
         db.collection("users").document(currentUser.uid)

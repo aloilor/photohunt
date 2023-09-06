@@ -31,7 +31,8 @@
                 android:textAlignment="center"
                 android:textColor="@color/green"
                 android:textSize="36sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/electrolize"/>
 
             <EditText
                 android:id="@+id/LoginUsername"
@@ -42,6 +43,7 @@
                 android:drawableLeft="@drawable/ic_person"
                 android:drawablePadding="8dp"
                 android:hint="Username"
+                android:fontFamily="@font/electrolize"
                 android:padding="8dp"
                 android:textColor="@color/black"
                 android:textColorHighlight="@color/cardview_dark_background" />
@@ -55,6 +57,7 @@
                 android:drawableLeft="@drawable/ic_lock"
                 android:drawablePadding="8dp"
                 android:hint="Password"
+                android:fontFamily="@font/electrolize"
                 android:inputType="textPassword"
                 android:padding="8dp"
                 android:textColor="@color/black"
@@ -67,8 +70,9 @@
                 android:layout_marginTop="30dp"
                 android:backgroundTint="@color/green"
                 android:text="Login"
+                android:fontFamily="@font/electrolize"
                 android:textSize="18sp"
-                app:cornerRadius="20dp" />
+                app:cornerRadius="10dp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -81,6 +85,7 @@
         android:focusable="true"
         android:padding="8dp"
         android:text="Not yet registered? Sign Up Now"
+        android:fontFamily="@font/electrolize"
         android:textAlignment="center"
         android:textColor="#333333"
         android:textSize="14sp" />
