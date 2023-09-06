@@ -1,11 +1,12 @@
-package com.example.macc_project
+package com.example.macc_project.auth
 
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.Toast
-import com.example.macc_project.auth.GithubSignIn
+import com.example.macc_project.LobbyGame
+import com.example.macc_project.R
 import com.example.macc_project.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -15,6 +16,18 @@ class Login : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var  binding: ActivityLoginBinding
 
+
+    public override fun onStart() {
+        super.onStart()
+        // Check if user is signed in (non-null) and update UI accordingly.
+        val currentUser = auth.currentUser
+        if(currentUser != null){
+            Toast.makeText(
+                baseContext, "User already logged.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -45,7 +58,6 @@ class Login : AppCompatActivity() {
     private fun loginUser() {
         val email = findViewById<EditText>(R.id.LoginUsername).text.toString()
         val password = findViewById<EditText>(R.id.LoginPassword).text.toString()
-        val user = Firebase.auth.currentUser
 
         if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT)
