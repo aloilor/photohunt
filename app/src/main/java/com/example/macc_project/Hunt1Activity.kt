@@ -3,7 +3,6 @@ package com.example.macc_project
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,12 +10,10 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Location
 import android.location.LocationManager
-import android.media.Image
 import android.net.Uri
 import com.google.android.gms.location.LocationRequest
 import android.os.Bundle
 import android.os.Looper
-import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -26,9 +23,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
-import com.example.macc_project.GoogleSignIn.Companion.TAG
 import com.example.macc_project.databinding.ActivityHunt1Binding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -46,20 +41,19 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.security.AccessController.getContext
-import java.text.SimpleDateFormat
-import java.util.Locale
 import java.util.concurrent.ExecutorService
 
 
-class Hunt1Activity : AppCompatActivity() {
+class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     private val REQUEST_IMAGE_CAPTURE = 1
 
     val PERMISSIONS_ALL = arrayOf<String>(
         Manifest.permission.CAMERA,
-        Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_FINE_LOCATION
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
     )
+
+    private val mExtraInfo: ExtraInfo = ExtraInfo()
 
     private var imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
@@ -118,11 +112,27 @@ class Hunt1Activity : AppCompatActivity() {
 
         getLastLocation()
 
+        mExtraInfo.setTimerUpdateListener(this)
+        mExtraInfo.startTimer()
+
         binding.cameraCaptureButton.setOnClickListener {
             takePhoto()
         }
 
     }
+
+    override fun onTimerUpdate(minutes: Int, seconds: Int, deciseconds: Int, milliseconds: Int) {
+        binding.timerText.text = String.format("%02d:%02d", minutes, seconds)
+    }
+
+    override fun onTimerFinished(minutes: Int, seconds: Int, deciseconds: Int, milliseconds: Int) {
+        val finalTime = (seconds*1000+milliseconds).toString()
+        println("finaltime: $finalTime")
+        ExtraInfo.setTime(finalTime)
+    }
+
+
+
 
     private fun isLocationEnabled(): Boolean {
         var locationManager: LocationManager =
