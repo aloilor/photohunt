@@ -56,7 +56,8 @@ class Login : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success
-                    val it = Intent(this, Hunt1Activity::class.java)
+                    val it = Intent(this, LobbyGame::class.java)
+                    it.putExtra("email", email)
                     startActivity(it)
 
 
