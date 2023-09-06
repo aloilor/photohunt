@@ -99,7 +99,7 @@ class Hunt1Activity : AppCompatActivity() {
                     latitude = location.latitude
                     longitude = location.longitude
                     Log.w("lat+long,update:","Latitude: $latitude" )
-                    Log.w("lat+long,update:","Latitude: $longitude" )
+                    Log.w("lat+long,update:","Longitude: $longitude" )
                     binding.latitudeText.text = "Latitude: $latitude"
                     binding.longitudeText.text = "Longitude: $longitude"
                 }
