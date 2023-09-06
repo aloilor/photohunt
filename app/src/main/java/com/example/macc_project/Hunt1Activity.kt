@@ -8,8 +8,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.location.Location
 import android.location.LocationManager
+import android.media.Image
+import android.net.Uri
 import com.google.android.gms.location.LocationRequest
 import android.os.Bundle
 import android.os.Looper
@@ -18,8 +21,14 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
+import com.example.macc_project.GoogleSignIn.Companion.TAG
 import com.example.macc_project.databinding.ActivityHunt1Binding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -36,7 +45,11 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.security.AccessController.getContext
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.concurrent.ExecutorService
 
 
 class Hunt1Activity : AppCompatActivity() {
@@ -47,6 +60,11 @@ class Hunt1Activity : AppCompatActivity() {
         Manifest.permission.ACCESS_COARSE_LOCATION,
         Manifest.permission.ACCESS_FINE_LOCATION
     )
+
+    private var imageCapture: ImageCapture? = null
+    private lateinit var outputDirectory: File
+    private lateinit var cameraExecutor: ExecutorService
+
 
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private var longitude: Double = 0.0
@@ -70,6 +88,10 @@ class Hunt1Activity : AppCompatActivity() {
 
         getPermissions(PERMISSIONS_ALL)
 
+        openCamera()
+
+        outputDirectory = getOutputDirectory()
+
         mLocationCallback = object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
                 p0 ?: return
@@ -77,7 +99,7 @@ class Hunt1Activity : AppCompatActivity() {
                     latitude = location.latitude
                     longitude = location.longitude
                     Log.w("lat+long,update:","Latitude: $latitude" )
-                    Log.w("lat+long,update:","Latitude: $longitude" )
+                    Log.w("lat+long,update:","Longitude: $longitude" )
                     binding.latitudeText.text = "Latitude: $latitude"
                     binding.longitudeText.text = "Longitude: $longitude"
                 }
@@ -97,7 +119,7 @@ class Hunt1Activity : AppCompatActivity() {
         getLastLocation()
 
         binding.cameraCaptureButton.setOnClickListener {
-            openCamera()
+            takePhoto()
         }
 
     }
@@ -169,18 +191,96 @@ class Hunt1Activity : AppCompatActivity() {
         }
     }
 
+
     private fun openCamera() {
-        /*
-        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        try {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-        } catch (e: ActivityNotFoundException) {
-            // display error state to the user
-        }*/
+
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+
+        cameraProviderFuture.addListener({
+            // Used to bind the lifecycle of cameras to the lifecycle owner
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+
+            // Preview
+            val preview = Preview.Builder()
+                .build()
+                .also {
+                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+                }
+
+            // Select back camera as a default
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+            imageCapture = ImageCapture.Builder().build()
+            try {
+                // Unbind use cases before rebinding
+                cameraProvider.unbindAll()
+                // Bind use cases to camera
+                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+            } catch (exc: Exception) {
+                Log.e(TAG, "Use case binding failed", exc)
+            }
+
+        }, ContextCompat.getMainExecutor(this))
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cameraExecutor.shutdown()
+    }
+
+    private fun getOutputDirectory(): File {
+        val mediaDir = externalMediaDirs.firstOrNull()?.let {
+            File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
+        }
+        return if (mediaDir != null && mediaDir.exists())
+            mediaDir else filesDir
+    }
+
+    private fun takePhoto() {
+        val imageCapture = imageCapture ?: return
+
+        // Create time-stamped output file to hold the image
+
+        val fileName = "image_${System.currentTimeMillis()}.jpg"
+
+        val photoFile = File(
+            outputDirectory,
+            fileName
+        )
+
+        // Create output options object which contains file + metadata
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+
+        // Set up image capture listener, which is triggered after photo has been taken
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(this),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exc: ImageCaptureException) {
+                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
+                }
+
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    val imageBitmap: Bitmap  = BitmapFactory.decodeFile(photoFile.path)
+                    // Convert the Bitmap to a byte array
+                    val data = convertBitmapToByteArray(imageBitmap)
+
+                    //Upload the image to the python server
+                    uploadImageToServer(data)
 
 
-        //val preview = Preview.Builder().build()
+                    // upload image to firebase storage
+                    val storageRef = storage.reference.child("images").child(fileName)
+                    val uploadTask = storageRef.putBytes(data)
 
+
+                    val savedUri = Uri.fromFile(photoFile)
+                    val msg = "Photo capture succeeded: $savedUri"
+                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                    Log.d(TAG, msg)
+                }
+            })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
