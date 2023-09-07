@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.example.macc_project.Hunt1Activity
+import com.example.macc_project.LobbyGame
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.OAuthProvider
@@ -101,7 +102,7 @@ class GithubSignIn : AppCompatActivity() {
             }
     }*/
     private fun gotToStartGame(){
-        val intent = Intent(this, Hunt1Activity::class.java)
+        val intent = Intent(this, LobbyGame::class.java)
         startActivity(intent)
     }
     private fun addUserToDB(currentUser: FirebaseUser){

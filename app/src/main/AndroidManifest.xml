@@ -42,16 +42,16 @@
             android:name=".auth.GithubSignIn"
             android:exported="false" />
         <activity
-            android:name=".GoogleSignIn"
+            android:name=".auth.GoogleSignIn"
             android:exported="false" />
         <activity
-            android:name=".Register"
+            android:name=".auth.Register"
             android:exported="false" />
         <activity
             android:name=".Hunt1Activity"
             android:exported="false" />
         <activity
-            android:name=".Login"
+            android:name=".auth.Login"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
