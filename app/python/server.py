@@ -4,7 +4,7 @@ from flask import Flask, request
 app = Flask(__name__)
 
 # Define the full path to the directory where you want to save uploaded files
-upload_folder = 'insert directory where you want to save images'
+upload_folder = './'
 
 @app.route('/upload', methods=['POST'])
 def upload_image():
@@ -19,6 +19,14 @@ def upload_image():
     file.save(os.path.join(upload_folder, file.filename))
 
     return 'File uploaded successfully', 200
+
+
+@app.route('/image_recognition', methods = ['PUT'])
+def check_image():
+
+
+    return false
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)

@@ -91,8 +91,6 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         val view = binding.root
         setContentView(view)
 
-
-
         getPermissions(PERMISSIONS_ALL)
 
         objectToFind = objectList[(0..5).random()]
@@ -129,16 +127,13 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
 
         // Initialize Retrofit
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.64:5000/")
+            .baseUrl("http://192.168.1.58:5000/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         apiService = retrofit.create(ApiService::class.java)
 
         storage = FirebaseStorage.getInstance()
-
-
-
     }
 
     override fun onTimerUpdate(minutes: Int, seconds: Int, deciseconds: Int, milliseconds: Int) {
@@ -151,9 +146,6 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         println("finaltime: $finalTime")
         ExtraInfo.setTime(finalTime)
     }
-
-
-
 
     private fun isLocationEnabled(): Boolean {
         var locationManager: LocationManager =
@@ -179,8 +171,8 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
                     latitude = mLastLocation.latitude
                     longitude = mLastLocation.longitude
 
-                    binding.latitudeText.text = "Latitude: $latitude"
-                    binding.longitudeText.text = "Longitude: $longitude"
+                    binding.latitudeText.text = "Lat: $latitude"
+                    binding.longitudeText.text = "Long: $longitude"
                 }
                 startLocationUpdates()
             }
@@ -200,7 +192,6 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     }
 
     private fun getPermissions(permissions: Array<String>) {
-
         permissions.forEach {
             if (ContextCompat.checkSelfPermission(this, it)
                 != PackageManager.PERMISSION_GRANTED)
@@ -356,7 +347,10 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     private fun uploadImageToServer(data: ByteArray){
         val mediaType = "image/jpeg".toMediaTypeOrNull()
         val requestFile = RequestBody.create(mediaType, data)
-        val body = MultipartBody.Part.createFormData("file", "image.jpg", requestFile)
+
+        var username = ExtraInfo.myUsername
+
+        val body = MultipartBody.Part.createFormData("file", "$username-$objectToFind.jpg", requestFile)
 
         apiService.uploadImage(body).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {

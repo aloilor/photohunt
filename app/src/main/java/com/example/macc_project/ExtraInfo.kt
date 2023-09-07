@@ -63,7 +63,6 @@ class ExtraInfo {
                 minutes++
                 seconds = 0
             }
-            println("$minutes :: $seconds :: $deciseconds :: $milliseconds")
             timerUpdateListener?.onTimerUpdate(minutes, seconds, deciseconds, milliseconds)
             handler.postDelayed(this,10)
         }
