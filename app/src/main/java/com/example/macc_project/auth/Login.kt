@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
+import com.example.macc_project.HomePageActivity
 import com.example.macc_project.LobbyGame
 import com.example.macc_project.R
 import com.example.macc_project.databinding.ActivityLoginBinding
@@ -73,7 +74,7 @@ class Login : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success
-                    val it = Intent(this, LobbyGame::class.java)
+                    val it = Intent(this, HomePageActivity::class.java)
                     it.putExtra("email", email)
                     startActivity(it)
 

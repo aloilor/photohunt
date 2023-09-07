@@ -54,6 +54,9 @@
             android:name=".auth.Login"
             android:exported="false" />
         <activity
+            android:name=".HomePageActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

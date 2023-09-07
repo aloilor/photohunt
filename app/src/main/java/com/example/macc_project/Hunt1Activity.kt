@@ -43,6 +43,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 
 class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
@@ -97,7 +98,18 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         objectToFind = objectList[(0..5).random()]
         binding.objectText.setText(objectToFind.toString())
 
+        cameraExecutor = Executors.newSingleThreadExecutor()
+
         openCamera()
+
+        getLastLocation()
+
+        mExtraInfo.setTimerUpdateListener(this)
+        mExtraInfo.startTimer()
+
+        binding.cameraCaptureButton.setOnClickListener {
+            takePhoto()
+        }
 
         outputDirectory = getOutputDirectory()
 
@@ -109,8 +121,8 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
                     longitude = location.longitude
                     Log.w("lat+long,update:","Latitude: $latitude" )
                     Log.w("lat+long,update:","Longitude: $longitude" )
-                    binding.latitudeText.text = "Latitude: $latitude"
-                    binding.longitudeText.text = "Longitude: $longitude"
+                    binding.latitudeText.text = "Lat: $latitude"
+                    binding.longitudeText.text = "Long: $longitude"
                 }
             }
         }
@@ -125,14 +137,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
 
         storage = FirebaseStorage.getInstance()
 
-        getLastLocation()
 
-        mExtraInfo.setTimerUpdateListener(this)
-        mExtraInfo.startTimer()
-
-        binding.cameraCaptureButton.setOnClickListener {
-            takePhoto()
-        }
 
     }
 
@@ -253,6 +258,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
+        mExtraInfo.stopTimer()
     }
 
     private fun getOutputDirectory(): File {
