@@ -54,6 +54,14 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         Manifest.permission.ACCESS_COARSE_LOCATION
     )
 
+    private val objectList = listOf("chair",
+        "bottle",
+        "cellular",
+        "television",
+        "key",
+        "wallet")
+    lateinit var objectToFind: String
+
     private val mExtraInfo: ExtraInfo = ExtraInfo()
 
     private var imageCapture: ImageCapture? = null
@@ -82,7 +90,12 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         val view = binding.root
         setContentView(view)
 
+
+
         getPermissions(PERMISSIONS_ALL)
+
+        objectToFind = objectList[(0..5).random()]
+        binding.objectText.setText(objectToFind.toString())
 
         openCamera()
 
