@@ -56,18 +56,18 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage-ktx:20.2.1'
     implementation 'com.google.firebase:firebase-firestore-ktx:24.7.1'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation platform('com.google.firebase:firebase-bom:31.5.0')
+    implementation 'com.google.firebase:firebase-auth-ktx:21.3.0'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
     implementation 'com.google.android.gms:play-services-auth:20.6.0'
     implementation 'com.squareup.okhttp3:okhttp:4.5.0'
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
-    implementation(platform("com.google.firebase:firebase-bom:32.2.3"))
-    implementation("com.google.firebase:firebase-auth-ktx")
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5'
+
 
 
     // CameraX core library using the camera2 implementation
