@@ -30,6 +30,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.storage.FirebaseStorage
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -44,19 +45,30 @@ import java.io.File
 import java.util.concurrent.ExecutorService
 
 
-class Hunt1Activity : AppCompatActivity() {
+class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     private val REQUEST_IMAGE_CAPTURE = 1
 
     val PERMISSIONS_ALL = arrayOf<String>(
         Manifest.permission.CAMERA,
-        Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_FINE_LOCATION
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
     )
+
+    private val objectList = listOf("chair",
+        "bottle",
+        "cellular",
+        "television",
+        "key",
+        "wallet")
+    lateinit var objectToFind: String
+
+    private val mExtraInfo: ExtraInfo = ExtraInfo()
 
     private var imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
 
+    private var listener: ListenerRegistration?= null
 
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private var longitude: Double = 0.0
@@ -78,7 +90,12 @@ class Hunt1Activity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+
+
         getPermissions(PERMISSIONS_ALL)
+
+        objectToFind = objectList[(0..5).random()]
+        binding.objectText.setText(objectToFind.toString())
 
         openCamera()
 
@@ -110,11 +127,28 @@ class Hunt1Activity : AppCompatActivity() {
 
         getLastLocation()
 
+        mExtraInfo.setTimerUpdateListener(this)
+        mExtraInfo.startTimer()
+
         binding.cameraCaptureButton.setOnClickListener {
             takePhoto()
         }
 
     }
+
+    override fun onTimerUpdate(minutes: Int, seconds: Int, deciseconds: Int, milliseconds: Int) {
+        //println("Timer Update, $milliseconds")
+        binding.timerText.text = String.format("%02d:%02d", minutes, seconds)
+    }
+
+    override fun onTimerFinished(minutes: Int, seconds: Int, deciseconds: Int, milliseconds: Int) {
+        val finalTime = (seconds*1000+milliseconds).toString()
+        println("finaltime: $finalTime")
+        ExtraInfo.setTime(finalTime)
+    }
+
+
+
 
     private fun isLocationEnabled(): Boolean {
         var locationManager: LocationManager =

@@ -3,6 +3,7 @@ package com.example.macc_project.auth
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import com.example.macc_project.LobbyGame
@@ -22,6 +23,10 @@ class Login : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+
+        Log.w("debugger", "accessing login" )
+
 
         auth = Firebase.auth
 
