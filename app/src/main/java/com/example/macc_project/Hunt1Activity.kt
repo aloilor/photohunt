@@ -55,12 +55,12 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         Manifest.permission.ACCESS_COARSE_LOCATION
     )
 
-    private val objectList = listOf("chair",
-        "bottle",
-        "cellular",
-        "television",
-        "key",
-        "wallet")
+    private val objectList = listOf("desk",
+        "mouse",
+        "keyboard",
+        "monitor",
+        "laptop",
+        "computer")
     lateinit var objectToFind: String
 
     private val mExtraInfo: ExtraInfo = ExtraInfo()
@@ -355,10 +355,15 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         apiService.uploadImage(body).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
 
-                if (response.isSuccessful) {
-                    val toastMessage = "image uploaded to the server"
+                if (response.code() == 200) {
+                    val toastMessage = "Object found!"
+                    println("Object Found!")
                     showToast(toastMessage)
 
+                } else if (response.code() == 250){
+                    val toastMessage = "Wrong object!"
+                    println("Wrong object!")
+                    showToast(toastMessage)
                 } else {
                     val toastMessage = "Upload Image Failed"
                     showToast(toastMessage)
