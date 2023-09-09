@@ -28,6 +28,12 @@ class HomePageActivity : AppCompatActivity() {
                 startActivity(it)
             }
         }
+        binding.ScoreboardButton.setOnClickListener {
+            Intent(this, ScoreboardActivity::class.java).also {
+                startActivity(it)
+            }
+        }
+
 
     }
 

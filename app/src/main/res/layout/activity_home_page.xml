@@ -22,7 +22,7 @@
 
         <Button
             android:id="@+id/CompeteButton"
-            android:layout_width="wrap_content"
+            android:layout_width="146dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:backgroundTint="@color/green"
@@ -30,11 +30,12 @@
             android:text="Compete"
             android:textSize="18sp"
             tools:layout_editor_absoluteX="144dp"
-            tools:layout_editor_absoluteY="421dp" />
+            tools:layout_editor_absoluteY="421dp"
+            app:cornerRadius="10dp"/>
 
         <Button
             android:id="@+id/VersusButton"
-            android:layout_width="wrap_content"
+            android:layout_width="145dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:backgroundTint="@color/green"
@@ -42,7 +43,8 @@
             android:text="Versus"
             android:textSize="18sp"
             tools:layout_editor_absoluteX="144dp"
-            tools:layout_editor_absoluteY="421dp" />
+            tools:layout_editor_absoluteY="421dp"
+            app:cornerRadius="10dp"/>
 
         <Button
             android:id="@+id/ScoreboardButton"
@@ -54,7 +56,8 @@
             android:text="Scoreboard"
             android:textSize="18sp"
             tools:layout_editor_absoluteX="144dp"
-            tools:layout_editor_absoluteY="421dp" />
+            tools:layout_editor_absoluteY="421dp"
+            app:cornerRadius="10dp"/>
 
         <Button
             android:id="@+id/HowToPlayButton"
@@ -66,7 +69,8 @@
             android:text="How to play"
             android:textSize="18sp"
             tools:layout_editor_absoluteX="144dp"
-            tools:layout_editor_absoluteY="421dp" />
+            tools:layout_editor_absoluteY="421dp"
+            app:cornerRadius="10dp"/>
 
     </LinearLayout>
 
