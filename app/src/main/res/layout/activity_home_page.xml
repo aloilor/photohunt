@@ -9,7 +9,9 @@
     tools:context=".HomePageActivity">
 
 
+
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -19,6 +21,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteX="0dp">
 
+        <com.example.macc_project.graphicsApp.MyGLSurfaceView
+            android:id="@+id/myGLSurfaceView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="200dp"/>
 
         <Button
             android:id="@+id/CompeteButton"
@@ -29,9 +37,9 @@
             android:fontFamily="@font/electrolize"
             android:text="Compete"
             android:textSize="18sp"
+            app:cornerRadius="10dp"
             tools:layout_editor_absoluteX="144dp"
-            tools:layout_editor_absoluteY="421dp"
-            app:cornerRadius="10dp"/>
+            tools:layout_editor_absoluteY="421dp" />
 
         <Button
             android:id="@+id/VersusButton"
@@ -42,9 +50,9 @@
             android:fontFamily="@font/electrolize"
             android:text="Versus"
             android:textSize="18sp"
+            app:cornerRadius="10dp"
             tools:layout_editor_absoluteX="144dp"
-            tools:layout_editor_absoluteY="421dp"
-            app:cornerRadius="10dp"/>
+            tools:layout_editor_absoluteY="421dp" />
 
         <Button
             android:id="@+id/ScoreboardButton"
@@ -55,9 +63,9 @@
             android:fontFamily="@font/electrolize"
             android:text="Scoreboard"
             android:textSize="18sp"
+            app:cornerRadius="10dp"
             tools:layout_editor_absoluteX="144dp"
-            tools:layout_editor_absoluteY="421dp"
-            app:cornerRadius="10dp"/>
+            tools:layout_editor_absoluteY="421dp" />
 
         <Button
             android:id="@+id/HowToPlayButton"
@@ -68,11 +76,14 @@
             android:fontFamily="@font/electrolize"
             android:text="How to play"
             android:textSize="18sp"
+            app:cornerRadius="10dp"
             tools:layout_editor_absoluteX="144dp"
-            tools:layout_editor_absoluteY="421dp"
-            app:cornerRadius="10dp"/>
+            tools:layout_editor_absoluteY="421dp" />
+
+
+
+
 
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
