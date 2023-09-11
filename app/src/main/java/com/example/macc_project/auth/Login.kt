@@ -6,7 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
-import com.example.macc_project.LobbyGame
+import com.example.macc_project.ExtraInfo
+import com.example.macc_project.HomePageActivity
 import com.example.macc_project.R
 import com.example.macc_project.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -17,6 +18,18 @@ class Login : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var  binding: ActivityLoginBinding
 
+
+    /*public override fun onStart() {
+       super.onStart()
+        // Check if user is signed in
+        val currentUser = auth.currentUser
+        if(currentUser != null){
+            Toast.makeText(
+                baseContext, "User already logged.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }*/
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -61,7 +74,10 @@ class Login : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success
-                    val it = Intent(this, LobbyGame::class.java)
+                    ExtraInfo.setUsername(email)
+                    println(ExtraInfo.myUsername)
+
+                    val it = Intent(this, HomePageActivity::class.java)
                     it.putExtra("email", email)
                     startActivity(it)
 

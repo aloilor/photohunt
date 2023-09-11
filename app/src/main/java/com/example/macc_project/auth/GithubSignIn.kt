@@ -6,12 +6,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import com.example.macc_project.LobbyGame
-import com.example.macc_project.R
+import com.example.macc_project.HomePageActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.OAuthProvider
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -96,7 +94,8 @@ class GithubSignIn : AppCompatActivity() {
             }
     }*/
 
-    private fun addUserToDB(currentUser: FirebaseUser) {
+
+    private fun addUserToDB(currentUser: FirebaseUser){
         val db = Firebase.firestore
         val username = setName(currentUser.displayName)
 
@@ -108,8 +107,8 @@ class GithubSignIn : AppCompatActivity() {
         db.collection("users").document(currentUser.uid)
             .set(user)
             .addOnSuccessListener {
-                val intent = Intent(this, LobbyGame::class.java)
-                intent.putExtra("email", username)
+                val intent = Intent(this, HomePageActivity::class.java)
+                intent.putExtra("username", username)
                 startActivity(intent)
                 Toast.makeText(
                     baseContext, "User logged with GitHub",
@@ -124,7 +123,6 @@ class GithubSignIn : AppCompatActivity() {
                 )
             }
     }
-
     private fun setName(displayName: String?): String {
         return if (displayName.isNullOrBlank()) {
             generateRandomName()
@@ -137,6 +135,9 @@ class GithubSignIn : AppCompatActivity() {
         val randomSuffix = (10000..99999).random()
         return "User$randomSuffix"
     }
+
+
+
     companion object{
        const val TAG = "GithubActivity"
     }

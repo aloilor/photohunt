@@ -43,6 +43,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 
 class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
@@ -54,12 +55,12 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         Manifest.permission.ACCESS_COARSE_LOCATION
     )
 
-    private val objectList = listOf("chair",
-        "bottle",
-        "cellular",
-        "television",
-        "key",
-        "wallet")
+    private val objectList = listOf("desk",
+        "mouse",
+        "keyboard",
+        "monitor",
+        "laptop",
+        "computer")
     lateinit var objectToFind: String
 
     private val mExtraInfo: ExtraInfo = ExtraInfo()
@@ -90,14 +91,23 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         val view = binding.root
         setContentView(view)
 
-
-
         getPermissions(PERMISSIONS_ALL)
 
         objectToFind = objectList[(0..5).random()]
         binding.objectText.setText(objectToFind.toString())
 
+        cameraExecutor = Executors.newSingleThreadExecutor()
+
         openCamera()
+
+        getLastLocation()
+
+        mExtraInfo.setTimerUpdateListener(this)
+        mExtraInfo.startTimer()
+
+        binding.cameraCaptureButton.setOnClickListener {
+            takePhoto()
+        }
 
         outputDirectory = getOutputDirectory()
 
@@ -109,31 +119,21 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
                     longitude = location.longitude
                     Log.w("lat+long,update:","Latitude: $latitude" )
                     Log.w("lat+long,update:","Longitude: $longitude" )
-                    binding.latitudeText.text = "Latitude: $latitude"
-                    binding.longitudeText.text = "Longitude: $longitude"
+                    binding.latitudeText.text = "Lat: $latitude"
+                    binding.longitudeText.text = "Long: $longitude"
                 }
             }
         }
 
         // Initialize Retrofit
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.64:5000/")
+            .baseUrl("http://192.168.1.58:5000/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         apiService = retrofit.create(ApiService::class.java)
 
         storage = FirebaseStorage.getInstance()
-
-        getLastLocation()
-
-        mExtraInfo.setTimerUpdateListener(this)
-        mExtraInfo.startTimer()
-
-        binding.cameraCaptureButton.setOnClickListener {
-            takePhoto()
-        }
-
     }
 
     override fun onTimerUpdate(minutes: Int, seconds: Int, deciseconds: Int, milliseconds: Int) {
@@ -146,9 +146,6 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         println("finaltime: $finalTime")
         ExtraInfo.setTime(finalTime)
     }
-
-
-
 
     private fun isLocationEnabled(): Boolean {
         var locationManager: LocationManager =
@@ -174,8 +171,8 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
                     latitude = mLastLocation.latitude
                     longitude = mLastLocation.longitude
 
-                    binding.latitudeText.text = "Latitude: $latitude"
-                    binding.longitudeText.text = "Longitude: $longitude"
+                    binding.latitudeText.text = "Lat: $latitude"
+                    binding.longitudeText.text = "Long: $longitude"
                 }
                 startLocationUpdates()
             }
@@ -195,7 +192,6 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     }
 
     private fun getPermissions(permissions: Array<String>) {
-
         permissions.forEach {
             if (ContextCompat.checkSelfPermission(this, it)
                 != PackageManager.PERMISSION_GRANTED)
@@ -253,6 +249,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
+        mExtraInfo.stopTimer()
     }
 
     private fun getOutputDirectory(): File {
@@ -350,15 +347,23 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     private fun uploadImageToServer(data: ByteArray){
         val mediaType = "image/jpeg".toMediaTypeOrNull()
         val requestFile = RequestBody.create(mediaType, data)
-        val body = MultipartBody.Part.createFormData("file", "image.jpg", requestFile)
+
+        var username = ExtraInfo.myUsername
+
+        val body = MultipartBody.Part.createFormData("file", "$username-$objectToFind.jpg", requestFile)
 
         apiService.uploadImage(body).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
 
-                if (response.isSuccessful) {
-                    val toastMessage = "image uploaded to the server"
+                if (response.code() == 200) {
+                    val toastMessage = "Object found!"
+                    println("Object Found!")
                     showToast(toastMessage)
 
+                } else if (response.code() == 250){
+                    val toastMessage = "Wrong object!"
+                    println("Wrong object!")
+                    showToast(toastMessage)
                 } else {
                     val toastMessage = "Upload Image Failed"
                     showToast(toastMessage)

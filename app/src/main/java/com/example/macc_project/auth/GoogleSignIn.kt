@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import com.example.macc_project.HomePageActivity
 import com.example.macc_project.LobbyGame
 import com.example.macc_project.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -85,9 +86,8 @@ class GoogleSignIn : AppCompatActivity() {
         val signInIntent = googleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
-    private fun goToLobby(username: String){
-        val intent = Intent(this, LobbyGame::class.java)
-        intent.putExtra("email", username)
+    private fun goToHomepage(){
+        val intent = Intent(this, HomePageActivity::class.java)
         startActivity(intent)
 
     }
@@ -102,7 +102,7 @@ class GoogleSignIn : AppCompatActivity() {
         db.collection("users").document(currentUser.uid)
             .set(user)
             .addOnSuccessListener {
-                goToLobby(currentUser.displayName!!.replace(" ", ""))
+                goToHomepage()
                 Toast.makeText(
                     baseContext, "User logged with google",
                     Toast.LENGTH_SHORT

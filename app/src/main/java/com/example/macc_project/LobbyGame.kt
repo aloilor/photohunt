@@ -25,7 +25,7 @@ class LobbyGame : AppCompatActivity() {
         binding = ActivityLobbyGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        username = intent.getStringExtra("email").toString()
+        username = intent.getStringExtra("username").toString()
 
         FirebaseApp.initializeApp(this)
 
@@ -108,7 +108,7 @@ class LobbyGame : AppCompatActivity() {
                 if (statusGame == "started" && !player2Name.isEmpty() && !player1Name.isEmpty()) {
                     Handler().postDelayed({
                         val intent = Intent(this, Hunt1Activity::class.java)
-                        intent.putExtra("email", username)
+                        intent.putExtra("username", username)
                         intent.putExtra("lobbyId", lobbyId)
                         startActivity(intent)
                     }, 3000)

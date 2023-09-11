@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".HomePageActivity">
+
+
+        <LinearLayout
+            android:id="@+id/cubeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center">
+
+        </LinearLayout>
+
+        <com.example.macc_project.graphicsApp.MyGLSurfaceView
+            android:id="@+id/myGLSurfaceView"
+            android:layout_width="match_parent"
+            android:layout_marginBottom="70dp"
+            android:layout_height="match_parent" />
+
+
+        <TextView
+            android:id="@+id/myPhotoHunt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PhotoHunt"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/electrolize"
+            android:textColor="@color/green"
+            android:layout_marginLeft="45dp"
+            android:layout_marginTop="80dp"/>
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Player"
+            android:textSize="20sp"
+            android:textStyle="normal"
+            android:fontFamily="@font/electrolize"
+            android:textColor="@color/green"
+            android:layout_marginLeft="47dp"
+            android:layout_marginTop="120dp"/>
+        <ImageView
+            android:id="@+id/logoutButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="50dp"
+            android:src="@drawable/ic_logout"
+            android:layout_marginLeft="290dp"
+            android:layout_marginTop="90dp"/>
+
+
+        <LinearLayout
+            android:id="@+id/buttonsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="60dp"
+            android:orientation="vertical"
+            android:gravity="center">
+
+                <Button
+                    android:id="@+id/CompeteButton"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:backgroundTint="@color/green"
+                    android:fontFamily="@font/electrolize"
+                    android:text="Compete"
+                    android:textSize="20sp"
+                    app:cornerRadius="10dp"
+                    android:textStyle="bold"/>
+
+                <Button
+                    android:id="@+id/VersusButton"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:backgroundTint="@color/green"
+                    android:fontFamily="@font/electrolize"
+                    android:text="Versus"
+                    android:textSize="20sp"
+                    app:cornerRadius="10dp"
+                    android:textStyle="bold"/>
+
+                <Button
+                    android:id="@+id/ScoreboardButton"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:backgroundTint="@color/green"
+                    android:fontFamily="@font/electrolize"
+                    android:text="Scoreboard"
+                    android:textSize="20sp"
+                    app:cornerRadius="10dp"
+                    android:textStyle="bold"/>
+
+                <Button
+                    android:id="@+id/HowToPlayButton"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="@color/green"
+                    android:backgroundTint="#333333"
+                    android:fontFamily="@font/electrolize"
+                    android:text="How to play"
+                    android:textSize="20sp"
+                    app:cornerRadius="10dp"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
+</RelativeLayout>
+
