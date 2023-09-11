@@ -8,9 +8,9 @@ import android.opengl.Matrix
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-class CubeRenderer(private val context: Context) : GLSurfaceView.Renderer {
+class CubeRenderer(val context: Context) : GLSurfaceView.Renderer {
 
-    private val cube: Cube = Cube(context)
+    var cube: Cube? = null
 
     // Model-View-Projection matrix
     private val mvpMatrix = FloatArray(16)
@@ -22,8 +22,9 @@ class CubeRenderer(private val context: Context) : GLSurfaceView.Renderer {
     private var y = 0f
 
     override fun onSurfaceCreated(glUnused: GL10, config: EGLConfig) {
-        // Set the clear buffer color to dark gray
-        GLES30.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
+        // Set the clear buffer color like dark theme
+        GLES30.glClearColor(0.11f, 0.11f, 0.11f, 1.0f)
+        cube = Cube(context)
     }
 
     override fun onSurfaceChanged(glUnused: GL10, width: Int, height: Int) {
@@ -32,7 +33,7 @@ class CubeRenderer(private val context: Context) : GLSurfaceView.Renderer {
         val aspect = width.toFloat() / height
 
         // Projection Matrix
-        Matrix.frustumM(projectionMatrix, 0, -aspect, aspect, -1f, 1f, 3f, 7f)
+        Matrix.perspectiveM(projectionMatrix, 0, 53.13f, aspect, 1f, 50f)
     }
 
     override fun onDrawFrame(glUnused: GL10) {
@@ -61,7 +62,7 @@ class CubeRenderer(private val context: Context) : GLSurfaceView.Renderer {
         Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, mvpMatrix, 0)
 
         // Draw the cube with the calculated MVP matrix
-        cube.draw(mvpMatrix)
+        cube!!.draw(mvpMatrix)
 
         // Update the rotation angle for animation
         angle += 0.4f

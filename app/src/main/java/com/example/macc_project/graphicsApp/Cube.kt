@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.opengl.GLES30
 import android.opengl.GLUtils
 import android.util.Log
+import com.example.macc_project.HomePageActivity
 import com.example.macc_project.R
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -14,9 +15,34 @@ import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 
 
-class Cube(context: Context) {
-    //vertex shader code
-    var vShaderStr = """#version 300 es 			  
+
+class Cube(private val context: Context ){
+    /*var vShaderStr = """#version 300 es
+        uniform mat4 uMatrix;     
+        in vec4 vPosition;           
+        void main()                  
+        {                            
+           gl_Position = uMatrix * vPosition;  
+        }                            
+        """
+
+    //fragment shader code.
+    var fShaderStr = """#version 300 es		 			          	
+        precision mediump float;					  	
+        uniform vec4 vColor;	 			 		  	
+        out vec4 fragColor;	 			 		  	
+        void main()                                  
+        {                                            
+          fragColor = vec4(1.0,0.0,0.0,1.0);                    	
+        }                                            
+        """
+   *///vertex shader
+    var vShaderStr =
+        """
+        #version 300 es 
+        precision mediump float;
+        
+
         uniform mat4 uMatrix;     
         in vec4 vPosition;  
         in vec2 aTexCoord;
@@ -28,7 +54,7 @@ class Cube(context: Context) {
         }                            
         """
 
-    //fragment shader code.
+    //fragment shader
     var fShaderStr = """
         #version 300 es		 			          	
         precision mediump float;
@@ -51,23 +77,48 @@ class Cube(context: Context) {
     private val indices: ShortBuffer
     private val textureIds = IntArray(6)
 
-
-    var size = 0.4f
+    var size = 0.3f
 
     private var TAG = "Cube"
 
-    // Define vertices, texture coordinates, and indices (similar to previous response)
     // Define the vertices for the cube
     private val verticesData =
         floatArrayOf(
-            -size, -size, -size,
-            size, -size, -size,
-            size, size, -size,
-            -size, size, -size,
-            -size, -size, size,
-            size, -size, size,
-            size, size, size,
-            -size, size, size
+            // Front face
+            -size, -size, size,  // 0
+            size, -size, size,   // 1
+            size, size, size,    // 2
+            -size, size, size,   // 3
+
+            // Back face
+            -size, -size, -size, // 4
+            size, -size, -size,  // 5
+            size, size, -size,   // 6
+            -size, size, -size,  // 7
+
+            // Top face
+            -size, size, size,   // 8
+            size, size, size,    // 9
+            size, size, -size,   // 10
+            -size, size, -size,  // 11
+
+            // Bottom face
+            -size, -size, size,  // 12
+            size, -size, size,   // 13
+            size, -size, -size,  // 14
+            -size, -size, -size, // 15
+
+            // Right face
+            size, -size, size,   // 16
+            size, -size, -size,  // 17
+            size, size, -size,   // 18
+            size, size, size,    // 19
+
+            // Left face
+            -size, -size, size,  // 20
+            -size, -size, -size, // 21
+            -size, size, -size,  // 22
+            -size, size, size    // 23
         )
 
     // Define texture coordinates for each vertex
@@ -77,26 +128,46 @@ class Cube(context: Context) {
             1.0f, 0.0f,
             1.0f, 1.0f,
             0.0f, 1.0f,
+
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+            0.0f, 1.0f,
+
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+            0.0f, 1.0f,
+
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+            0.0f, 1.0f,
+
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+            0.0f, 1.0f,
+
             0.0f, 0.0f,
             1.0f, 0.0f,
             1.0f, 1.0f,
             0.0f, 1.0f
         )
 
-    // Define the order in which to draw vertices to create each face
+    // Define indices
     private val indicesData =
         shortArrayOf(
-            0, 1, 2, 0, 2, 3,  // Front face
-            1, 5, 6, 1, 6, 2,  // Right face
-            5, 4, 7, 5, 7, 6,  // Back face
-            4, 0, 3, 4, 3, 7,  // Left face
-            3, 2, 6, 3, 6, 7,  // Top face
-            4, 5, 1, 4, 1, 0   // Bottom face
+            0, 1, 2, 0, 2, 3,  // Front
+            4, 5, 6, 4, 6, 7,  // Back
+            8, 9, 10, 8, 10, 11,  //Top
+            12, 13, 14, 12, 14, 15,  //Bottom
+            16, 17, 18, 16, 18, 19,  //Right
+            20, 21, 22, 20, 22, 23   //Left
         )
 
 
     init {
-
 
         vertices = ByteBuffer
             .allocateDirect(verticesData.size * 4)
@@ -119,15 +190,19 @@ class Cube(context: Context) {
             .put(indicesData)
         indices.position(0)
 
-
-        // Load shaders and program (similar to previous response)
         // Load shaders and create program
         val vertexShader = loadShader(GLES30.GL_VERTEX_SHADER, vShaderStr)
         val fragmentShader = loadShader(GLES30.GL_FRAGMENT_SHADER, fShaderStr)
 
         program = GLES30.glCreateProgram()
+        if (program == 0) {
+            Log.e(TAG, "Cube.kt : error on glCreateProgram?")
+        }
         GLES30.glAttachShader(program, vertexShader)
         GLES30.glAttachShader(program, fragmentShader)
+
+        GLES30.glBindAttribLocation(program, 0, "vPosition")
+
         GLES30.glLinkProgram(program)
 
         // Check shader program status
@@ -141,12 +216,21 @@ class Cube(context: Context) {
         textureHandle = GLES30.glGetUniformLocation(program, "uTexture")
         texCoordHandle = GLES30.glGetAttribLocation(program, "aTexCoord")
 
-
         // Generate texture ids and load textures for each face
         GLES30.glGenTextures(6, textureIds, 0)
+
+        val resourceId = R.drawable.logotreasurehunt2
+        val textureBitmap = BitmapFactory.decodeResource(context.resources, resourceId)
+
+        if (textureBitmap == null) {
+            // Handle the case where loading the texture failed
+            throw RuntimeException("Failed to load texture from resource: $resourceId")
+        }
+
         for (i in 0 until 6) {
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureIds[i])
-            val texture = loadTexture(context, R.drawable.logotreasurehunt)
+
+            // Set texture parameters
             GLES30.glTexParameteri(
                 GLES30.GL_TEXTURE_2D,
                 GLES30.GL_TEXTURE_MIN_FILTER,
@@ -157,16 +241,21 @@ class Cube(context: Context) {
                 GLES30.GL_TEXTURE_MAG_FILTER,
                 GLES30.GL_LINEAR
             )
-            GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, texture, 0)
-            texture.recycle()
+
+            // Upload the texture bitmap to OpenGL ES
+            GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, textureBitmap, 0)
         }
+
+        // Recycle the texture bitmap since it's no longer needed
+        textureBitmap.recycle()
+
 
 
     }
 
 
     fun draw(mvpMatrix: FloatArray) {
-        // Use the program object
+        // Use the program
         GLES30.glUseProgram(program)
 
         // Set the MVP matrix
@@ -195,7 +284,7 @@ class Cube(context: Context) {
         GLES30.glBindTexture(
             GLES30.GL_TEXTURE_2D,
             textureIds[0]
-        ) // Use the appropriate texture id for the face
+        )
 
         // Set the sampler texture unit to 0
         GLES30.glUniform1i(textureHandle, 0)
@@ -216,12 +305,7 @@ class Cube(context: Context) {
     }
 }
 
-private fun loadTexture(context: Context, resourceId: Int): Bitmap {
-        val options = BitmapFactory.Options()
-        options.inScaled = false
-        return BitmapFactory.decodeResource(context.resources, resourceId, options)
-}
-
+    //fun to load shaders
 private fun loadShader(type: Int, shaderCode: String): Int {
     val shader = GLES30.glCreateShader(type)
     GLES30.glShaderSource(shader, shaderCode)
@@ -231,10 +315,12 @@ private fun loadShader(type: Int, shaderCode: String): Int {
     val compileStatus = IntArray(1)
     GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, compileStatus, 0)
     if (compileStatus[0] == 0) {
-        Log.e(TAG, "Shader compilation failed:\n${GLES30.glGetShaderInfoLog(shader)}")
+        Log.e(TAG, "Shader compilation failed for type $type:\n${GLES30.glGetShaderInfoLog(shader)}")
         GLES30.glDeleteShader(shader)
+        return 0 // Return 0 to indicate compilation failure
     }
 
-    return shader
+    return shader // Return the shader handle on success
 }
+
 

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import com.example.macc_project.HomePageActivity
 import com.example.macc_project.Hunt1Activity
 import com.example.macc_project.LobbyGame
 import com.google.firebase.auth.FirebaseAuth
@@ -101,27 +102,40 @@ class GithubSignIn : AppCompatActivity() {
                 // Handle failure.
             }
     }*/
-    private fun gotToStartGame(){
-        val intent = Intent(this, LobbyGame::class.java)
-        startActivity(intent)
-    }
+
     private fun addUserToDB(currentUser: FirebaseUser){
         val db = Firebase.firestore
+        val username = setName(currentUser.displayName)
 
         val user = hashMapOf(
             "email" to currentUser.email,
+            "username" to username
         )
 
         db.collection("users").document(currentUser.uid)
             .set(user)
             .addOnSuccessListener {
-                gotToStartGame()
+                val intent = Intent(this, HomePageActivity::class.java)
+                intent.putExtra("username", username)
+                startActivity(intent)
                 Toast.makeText(
                     baseContext, "User logged with GitHub",
                     Toast.LENGTH_SHORT
                 ).show()
             }
             .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error during the registration", e) }
+    }
+    private fun setName(displayName: String?): String {
+        return if (displayName.isNullOrBlank()) {
+            generateRandomName()
+        } else {
+            displayName
+        }
+    }
+
+    private fun generateRandomName(): String {
+        val randomSuffix = (10000..99999).random()
+        return "User$randomSuffix"
     }
 
     companion object{

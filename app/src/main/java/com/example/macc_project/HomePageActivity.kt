@@ -1,15 +1,18 @@
 package com.example.macc_project
 
 import android.app.ActivityManager
+import android.app.AlertDialog
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.example.macc_project.auth.Login
 import com.example.macc_project.databinding.ActivityHomePageBinding
 import com.example.macc_project.graphicsApp.CubeRenderer
-
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class HomePageActivity : AppCompatActivity() {
@@ -17,6 +20,10 @@ class HomePageActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHomePageBinding
     private var glSurfaceView: GLSurfaceView? = null
     private var renderer: CubeRenderer? = null
+    private val db = FirebaseFirestore.getInstance()
+    private val userId = FirebaseAuth.getInstance().currentUser!!.uid
+    private val usersCollection = db.collection("users")
+    private var username:String? = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,8 +31,42 @@ class HomePageActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        //Alert dialog to logout
+        val logoutDialog = AlertDialog.Builder(this)
+            .setTitle("Logout")
+            .setMessage("Do you want to log out?")
+            .setPositiveButton("Logout"){_,_ ->
+                FirebaseAuth.getInstance().signOut()
+                Intent(this, Login::class.java).also {
+                    startActivity(it)
+                }
+            }
+            .setNegativeButton("Cancel"){dialog,_ ->
+                dialog.dismiss()
+            }.create()
 
-        if (detectOpenGLES30()) {
+
+        // Retrieve the user document
+        usersCollection.document(userId).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // retrieve the username from the document
+                    username = document.getString("username")
+                    if (username != null) {
+                        binding.username.text = username
+                    } else {
+                        Log.w(TAG,"Username doesn't exist")
+                    }
+                } else {
+                    Log.w(TAG,"Document doesn't exist")
+                }
+
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Error getting user document", exception)
+            }
+
+        if (checkOpenGL3()) {
             // Create a GLSurfaceView with OpenGL ES 3.0 context
             glSurfaceView = GLSurfaceView(this)
             glSurfaceView?.setEGLContextClientVersion(3)
@@ -33,15 +74,12 @@ class HomePageActivity : AppCompatActivity() {
             // Create a CubeRenderer and set it as the renderer
             renderer = CubeRenderer(this)
             glSurfaceView?.setRenderer(renderer)
-            val layout = binding.linearLayout
+            val layout = binding.cubeLayout
             layout.addView(glSurfaceView)
         } else {
-            // OpenGL ES 3.0 not supported on the device
-            Log.e("OpenGLCube", "OpenGL ES 3.0 not supported on device")
+            Log.d(TAG, "OpenGL ES 3.0 not supported on device")
             finish()
         }
-
-
 
 
         binding.CompeteButton.setOnClickListener {
@@ -52,6 +90,7 @@ class HomePageActivity : AppCompatActivity() {
 
         binding.VersusButton.setOnClickListener {
             Intent(this, LobbyGame::class.java).also {
+                it.putExtra("username",username)
                 startActivity(it)
             }
         }
@@ -60,9 +99,12 @@ class HomePageActivity : AppCompatActivity() {
                 startActivity(it)
             }
         }
+        binding.logoutButton.setOnClickListener{
+            logoutDialog.show()
+
+        }
 
     }
-
     override fun onResume() {
         super.onResume()
         glSurfaceView?.onResume()
@@ -74,23 +116,14 @@ class HomePageActivity : AppCompatActivity() {
     }
 
     // Check if OpenGL ES 3.0 is supported
-    private fun detectOpenGLES30(): Boolean {
+    private fun checkOpenGL3(): Boolean {
         val am = getSystemService(ACTIVITY_SERVICE) as ActivityManager
         val info = am.deviceConfigurationInfo
         return info.reqGlEsVersion >= 0x30000
     }
 
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-        }
-    }
-
+companion object{
+    private const val TAG = "HomePageActivity"
+}
 
 }

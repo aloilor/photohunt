@@ -20,9 +20,9 @@ class Login : AppCompatActivity() {
     private lateinit var  binding: ActivityLoginBinding
 
 
-    public override fun onStart() {
-        super.onStart()
-        // Check if user is signed in (non-null) and update UI accordingly.
+    /*public override fun onStart() {
+       super.onStart()
+        // Check if user is signed in
         val currentUser = auth.currentUser
         if(currentUser != null){
             Toast.makeText(
@@ -30,7 +30,7 @@ class Login : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
         }
-    }
+    }*/
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
