@@ -31,6 +31,13 @@ class HomePageActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+
+        //keeping clean the variables
+        ExtraInfo.myScore = 0
+        ExtraInfo.myLevel = 1
+        ExtraInfo.myLobbyID = "1"
+        ExtraInfo.actualMilliseconds = 0
+
         //Alert dialog to logout
         val logoutDialog = AlertDialog.Builder(this)
             .setTitle("Logout")

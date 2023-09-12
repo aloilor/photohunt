@@ -97,6 +97,11 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     private lateinit var apiService: ApiService
     private val db = FirebaseFirestore.getInstance()
 
+    private lateinit var nextLevelIntent: Intent
+    private lateinit var homePageIntent: Intent
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHunt1Binding.inflate(layoutInflater)
@@ -115,10 +120,12 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
 
         mExtraInfo.setTimerUpdateListener(this)
         mExtraInfo.startTimer()
+        binding.levelText.text = "Level ${ExtraInfo.myLevel}"
+        binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
 
         binding.cameraCaptureButton.setOnClickListener {
-            takePhoto()
             mExtraInfo.stopTimer()
+            takePhoto()
         }
 
         outputDirectory = getOutputDirectory()
@@ -168,10 +175,8 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     private fun isLocationEnabled(): Boolean {
         var locationManager: LocationManager =
             getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
             LocationManager.NETWORK_PROVIDER
-
         )
     }
 
@@ -318,7 +323,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
 
                     val savedUri = Uri.fromFile(photoFile)
                     val msg = "Photo capture succeeded: $savedUri"
-                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
                 }
             })
@@ -370,28 +375,93 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
 
         val body = MultipartBody.Part.createFormData("file", "$username-$objectToFind.jpg", requestFile)
 
+
+        // response alert dialog
+        val customLayout: View = layoutInflater.inflate(R.layout.activity_hint, null)
+        val textResponse = customLayout.findViewById<TextView>(R.id.textResponse)
+        val secHintButton = customLayout.findViewById<Button>(R.id.newButton)
+        val dismissButton = customLayout.findViewById<Button>(R.id.dismissButton)
+        val messageDialog = AlertDialog.Builder(this).setView(customLayout)
+
+
+        val dialog = messageDialog.create()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        //button for another hint
+        secHintButton.visibility = View.INVISIBLE
+        secHintButton.setOnClickListener {
+            textResponse.text = ""
+        }
+
+        //button for dismiss alert dialog
+
+        homePageIntent = Intent(this, HomePageActivity::class.java)
+        dismissButton.text = "Next lvl"
+        dismissButton.setOnClickListener {
+            dialog.dismiss()
+            Intent(this, Hunt1Activity::class.java).also {
+                startActivity(it)
+            }
+        }
+
+
         apiService.uploadImage(body).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                var score = 0
 
                 if (response.code() == 200) {
                     val toastMessage = "Object found!"
                     println("Object Found!")
+                    if (ExtraInfo.actualMilliseconds <= ExtraInfo.scoreThreshold1ms ){
+                        ExtraInfo.setScore(ExtraInfo.scoreThreshold1pts)
+                        score = ExtraInfo.scoreThreshold1pts
+                    } else if (ExtraInfo.actualMilliseconds > ExtraInfo.scoreThreshold1ms && ExtraInfo.actualMilliseconds <= ExtraInfo.scoreThreshold2ms) {
+                        ExtraInfo.setScore(ExtraInfo.scoreThreshold2pts)
+                        score = ExtraInfo.scoreThreshold2pts
+                    }else{
+                        ExtraInfo.setScore(ExtraInfo.scoreThreshold3pts)
+                        score = ExtraInfo.scoreThreshold3pts
+                    }
 
-                    showToast(toastMessage)
+
+                    if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL){
+                        textResponse.text = "Good job, you found the right object! You gained $score points. The game is ending though, your final score is: ${ExtraInfo.myScore}"
+                        dismissButton.text = "Home page"
+                        dismissButton.setOnClickListener {
+                            dialog.dismiss()
+                            startActivity(homePageIntent)
+                        }
+                    }
+                    else {
+                        textResponse.text ="Good job, you found the right object! You gained $score points, now get to the next level. champ ;)"
+                    }
 
                 } else if (response.code() == 250){
                     val toastMessage = "Wrong object!"
                     println("Wrong object!")
-                    showToast(toastMessage)
+                    if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL){
+                        textResponse.text = "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also the game is ending, your final score is: ${ExtraInfo.myScore}"
+                        dismissButton.text = "Home page"
+                        dismissButton.setOnClickListener {
+                            dialog.dismiss()
+                            startActivity(homePageIntent)
+                            }
+                    }
+                    else
+                        textResponse.text ="Tough luck buddy, that's not the right object ):. You'll get it next time, but in the meantime you lost 1 point (if you had any). "
+                    ExtraInfo.setScore(-1)
                 } else {
                     val toastMessage = "Upload Image Failed"
-                    showToast(toastMessage)
+                    textResponse.text = "Your image hasn't been uploaded, something's wrong with the server ): "
                 }
+                binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
+                dialog.show()
+                ExtraInfo.updateLevel()
             }
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
-                val toastMessage = "Upload Image Failed"
-                showToast(toastMessage)
+                textResponse.text = "Your image hasn't been uploaded, something's wrong with the server ): "
+                dialog.show()
             }
         })
     }
@@ -435,7 +505,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
                 if(response.isNotEmpty() && secResponse.isNotEmpty()){
 
                     //Alert dialog to display hint
-                   val customLayout: View = layoutInflater.inflate(R.layout.activity_hint, null)
+                    val customLayout: View = layoutInflater.inflate(R.layout.activity_hint, null)
                     val textResponse = customLayout.findViewById<TextView>(R.id.textResponse)
                     val secHintButton = customLayout.findViewById<Button>(R.id.newButton)
                     val dismissButton = customLayout.findViewById<Button>(R.id.dismissButton)

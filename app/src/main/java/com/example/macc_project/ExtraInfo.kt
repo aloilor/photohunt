@@ -12,6 +12,17 @@ class ExtraInfo {
         var myLobbyID:String = "1"
         var myTime:String = ""
         var myScore:Int = 0
+        var myLevel:Int = 1
+        var actualMilliseconds = 0
+
+
+        var MAX_LEVEL: Int = 3
+        var scoreThreshold1ms = 15000
+        var scoreThreshold1pts = 10
+        var scoreThreshold2ms = 30000
+        var scoreThreshold2pts = 5
+        var scoreThreshold3pts = 2
+
 
         fun setUsername(username:String){
             myUsername = username.toString()
@@ -26,7 +37,12 @@ class ExtraInfo {
         }
 
         fun setScore(score:Int){
+            if (myScore <= 0 && score < 0) return
             myScore += score
+        }
+
+        fun updateLevel(){
+            myLevel+=1
         }
     }
 
@@ -37,7 +53,6 @@ class ExtraInfo {
     var seconds = 0
     var deciseconds = 0
     var milliseconds = 0
-    var actualMilliseconds = 0
     private var timerUpdateListener: TimerUpdateListener? = null
 
     fun setTimerUpdateListener(listener: TimerUpdateListener) {
@@ -53,7 +68,6 @@ class ExtraInfo {
         override fun run() {
             milliseconds += 10
             actualMilliseconds += 10
-            println(actualMilliseconds)
             if (milliseconds == 100) {
                 deciseconds++
                 milliseconds = 0
