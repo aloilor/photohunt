@@ -72,6 +72,18 @@
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteY="16dp" />
 
+    <ImageView
+        android:id="@+id/hintButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="290dp"
+        android:layout_marginTop="15dp"
+        android:backgroundTint="@color/white"
+        android:src="@drawable/ic_hint"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timerText" />
+
     <TextView
         android:id="@+id/objectText"
         android:layout_width="wrap_content"

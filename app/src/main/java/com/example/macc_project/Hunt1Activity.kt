@@ -3,11 +3,14 @@ package com.example.macc_project
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
@@ -16,6 +19,9 @@ import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.view.View
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
@@ -24,12 +30,17 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import com.example.macc_project.auth.Login
+import com.example.macc_project.databinding.ActivityHintBinding
 import com.example.macc_project.databinding.ActivityHunt1Binding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.storage.FirebaseStorage
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -59,8 +70,8 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         "mouse",
         "keyboard",
         "monitor",
-        "laptop",
-        "computer")
+        "laptop")
+
     lateinit var objectToFind: String
 
     private val mExtraInfo: ExtraInfo = ExtraInfo()
@@ -84,6 +95,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     private lateinit var storage: FirebaseStorage
     private lateinit var binding: ActivityHunt1Binding
     private lateinit var apiService: ApiService
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,7 +106,6 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         getPermissions(PERMISSIONS_ALL)
 
         objectToFind = objectList[(0..5).random()]
-        binding.objectText.setText(objectToFind.toString())
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
@@ -135,6 +146,12 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         apiService = retrofit.create(ApiService::class.java)
 
         storage = FirebaseStorage.getInstance()
+
+        FirebaseApp.initializeApp(this)
+
+        binding.hintButton.setOnClickListener {
+            sendHintRequest(objectToFind)
+        }
     }
 
     override fun onTimerUpdate(minutes: Int, seconds: Int, deciseconds: Int, milliseconds: Int) {
@@ -385,6 +402,66 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     }
     private fun showToast(msg:String){
         Toast.makeText(this,msg, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun sendHintRequest(objectToFind :String){
+        db.collection("hints")
+            .whereEqualTo("request", objectToFind)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val hintDoc = querySnapshot.documents[0]
+                    val hintId = hintDoc.id
+                    getHintResponse(hintId)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Error collection hints: $exception")
+            }
+
+    }
+    private fun getHintResponse(hintID: String){
+        val docHintRef = db.collection("hints").document(hintID)
+        // Listen for the response
+        docHintRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                // Handle the error
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                val response = snapshot.getString("hint") ?: ""
+                val secResponse = snapshot.getString("secondHint") ?: ""
+                if(response.isNotEmpty() && secResponse.isNotEmpty()){
+
+                    //Alert dialog to display hint
+                   val customLayout: View = layoutInflater.inflate(R.layout.activity_hint, null)
+                    val textResponse = customLayout.findViewById<TextView>(R.id.textResponse)
+                    val secHintButton = customLayout.findViewById<Button>(R.id.newButton)
+                    val dismissButton = customLayout.findViewById<Button>(R.id.dismissButton)
+
+                    textResponse.text = response
+
+                    val messageDialog = AlertDialog.Builder(this)
+                        //.setMessage(response)
+                        .setView(customLayout)
+
+                    val dialog = messageDialog.create()
+                    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    dialog.show()
+
+                    //button for another hint
+                    secHintButton.setOnClickListener {
+                        textResponse.text = secResponse
+                    }
+                    //button for dismiss alert dialog
+                    dismissButton.setOnClickListener {
+                        dialog.dismiss()
+                    }
+
+                }
+            }
+        }
     }
     companion object {
         const val TAG = "Hunt1Activity"
