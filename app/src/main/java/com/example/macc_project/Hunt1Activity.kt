@@ -107,6 +107,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
 
         binding.cameraCaptureButton.setOnClickListener {
             takePhoto()
+            mExtraInfo.stopTimer()
         }
 
         outputDirectory = getOutputDirectory()
@@ -358,6 +359,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
                 if (response.code() == 200) {
                     val toastMessage = "Object found!"
                     println("Object Found!")
+
                     showToast(toastMessage)
 
                 } else if (response.code() == 250){

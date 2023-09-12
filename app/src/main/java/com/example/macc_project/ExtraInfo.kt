@@ -37,6 +37,7 @@ class ExtraInfo {
     var seconds = 0
     var deciseconds = 0
     var milliseconds = 0
+    var actualMilliseconds = 0
     private var timerUpdateListener: TimerUpdateListener? = null
 
     fun setTimerUpdateListener(listener: TimerUpdateListener) {
@@ -51,6 +52,8 @@ class ExtraInfo {
     private val updateTimer = object : Runnable {
         override fun run() {
             milliseconds += 10
+            actualMilliseconds += 10
+            println(actualMilliseconds)
             if (milliseconds == 100) {
                 deciseconds++
                 milliseconds = 0
@@ -71,7 +74,6 @@ class ExtraInfo {
     fun startTimer() {
         println("Timer started")
         handler.post(updateTimer)
-
     }
 
     fun stopTimer() {
