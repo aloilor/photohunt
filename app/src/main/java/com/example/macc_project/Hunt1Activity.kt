@@ -110,7 +110,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
 
         getPermissions(PERMISSIONS_ALL)
 
-        objectToFind = objectList[(0..5).random()]
+        objectToFind = objectList[(0..4).random()]
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
@@ -136,10 +136,10 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
                 for (location in p0.locations){
                     latitude = location.latitude
                     longitude = location.longitude
-                    Log.w("lat+long,update:","Latitude: $latitude" )
-                    Log.w("lat+long,update:","Longitude: $longitude" )
-                    binding.latitudeText.text = "Lat: $latitude"
-                    binding.longitudeText.text = "Long: $longitude"
+                    //Log.w("lat+long,update:","Latitude: $latitude" )
+                    //Log.w("lat+long,update:","Longitude: $longitude" )
+                    binding.latitudeText.text = String.format("Lat: %.2f",latitude)
+                    binding.longitudeText.text = String.format("Long: %.2f",longitude)
                 }
             }
         }
@@ -186,16 +186,18 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         if (isLocationEnabled()) {
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
             mLocationRequest = LocationRequest.Builder(interval).setIntervalMillis(interval).setMinUpdateIntervalMillis(fastestInterval).setPriority(Priority.PRIORITY_HIGH_ACCURACY).build()
-            mFusedLocationClient.lastLocation.addOnCompleteListener(this) { task ->
+            mFusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnCompleteListener(this) { task ->
                 mLastLocation = task.result
-                if (mLastLocation == null) {
-
-                } else {
+                if (mLastLocation != null) {
                     latitude = mLastLocation.latitude
                     longitude = mLastLocation.longitude
+                    var latString = String.format("%.2f",latitude)
+                    var longString = String.format("%.2f",longitude)
+                    println("Lat: $latString + Long: $longString")
 
-                    binding.latitudeText.text = "Lat: $latitude"
-                    binding.longitudeText.text = "Long: $longitude"
+
+                    binding.latitudeText.text = "Lat: $latString"
+                    binding.longitudeText.text = "Long: $longString"
                 }
                 startLocationUpdates()
             }
@@ -461,6 +463,11 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 textResponse.text = "Your image hasn't been uploaded, something's wrong with the server ): "
+                dismissButton.text = "Home page"
+                dismissButton.setOnClickListener {
+                    dialog.dismiss()
+                    startActivity(homePageIntent)
+                }
                 dialog.show()
             }
         })

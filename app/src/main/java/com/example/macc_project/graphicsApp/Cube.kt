@@ -219,7 +219,7 @@ class Cube(private val context: Context ){
         // Generate texture ids and load textures for each face
         GLES30.glGenTextures(6, textureIds, 0)
 
-        val resourceId = R.drawable.logotreasurehunt2
+        val resourceId = R.drawable.photohunt_logo2
         val textureBitmap = BitmapFactory.decodeResource(context.resources, resourceId)
 
         if (textureBitmap == null) {
