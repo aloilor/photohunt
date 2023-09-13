@@ -8,7 +8,7 @@ class ExtraInfo {
 
     companion object{
 
-        lateinit var myUsername:String
+        var myUsername:String = ""
         var myLobbyID:String = "1"
         var myTime:String = ""
         var myScore:Int = 0
@@ -25,7 +25,7 @@ class ExtraInfo {
 
 
         fun setUsername(username:String){
-            myUsername = username.toString()
+            myUsername = username
         }
 
         fun setLobbyID(lobbyID:String) {

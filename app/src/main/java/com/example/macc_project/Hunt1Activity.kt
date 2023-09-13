@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -19,6 +20,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -30,8 +32,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import com.example.macc_project.auth.Login
-import com.example.macc_project.databinding.ActivityHintBinding
+
 import com.example.macc_project.databinding.ActivityHunt1Binding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -39,7 +40,6 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.storage.FirebaseStorage
@@ -55,9 +55,14 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlinx.coroutines.*
+import kotlinx.coroutines.tasks.await
+import java.io.IOException
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resumeWithException
 
 
-class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
+class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, CoroutineScope {
     private val REQUEST_IMAGE_CAPTURE = 1
 
     val PERMISSIONS_ALL = arrayOf<String>(
@@ -100,6 +105,10 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
     private lateinit var nextLevelIntent: Intent
     private lateinit var homePageIntent: Intent
 
+    private lateinit var job: Job
+
+    override val coroutineContext: CoroutineContext
+        get() = job + Dispatchers.Main
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,9 +117,11 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         val view = binding.root
         setContentView(view)
 
+        job = Job()
+
         getPermissions(PERMISSIONS_ALL)
 
-        objectToFind = objectList[(0..5).random()]
+        objectToFind = objectList[(0..4).random()]
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
@@ -146,7 +157,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
 
         // Initialize Retrofit
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.58:5000/")
+            .baseUrl("http://192.168.1.64:5000/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -157,7 +168,9 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         FirebaseApp.initializeApp(this)
 
         binding.hintButton.setOnClickListener {
-            sendHintRequest(objectToFind)
+            launch {
+                sendHintRequest(objectToFind)
+            }
         }
     }
 
@@ -271,6 +284,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        job.cancel()
         cameraExecutor.shutdown()
         mExtraInfo.stopTimer()
     }
@@ -313,7 +327,9 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
                     val data = convertBitmapToByteArray(imageBitmap)
 
                     //Upload the image to the python server
-                    uploadImageToServer(data)
+                    launch {
+                        uploadImageToServer(data)
+                    }
 
 
                     // upload image to firebase storage
@@ -338,8 +354,11 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
 
             // Convert the Bitmap to a byte array
             val data = convertBitmapToByteArray(imageBitmap)
-            //Upload the image to the server
-            uploadImageToServer(data)
+
+            //call fun to send image to server with coroutine
+            launch {
+                uploadImageToServer(data)
+            }
 
             // Upload the image to Firebase Storage
             val uploadTask = storageRef.putBytes(data)
@@ -367,14 +386,13 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         }
 
     }
-    private fun uploadImageToServer(data: ByteArray){
+    private suspend fun uploadImageToServer(data: ByteArray) {
         val mediaType = "image/jpeg".toMediaTypeOrNull()
         val requestFile = RequestBody.create(mediaType, data)
 
         var username = ExtraInfo.myUsername
 
         val body = MultipartBody.Part.createFormData("file", "$username-$objectToFind.jpg", requestFile)
-
 
         // response alert dialog
         val customLayout: View = layoutInflater.inflate(R.layout.activity_hint, null)
@@ -383,19 +401,17 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         val dismissButton = customLayout.findViewById<Button>(R.id.dismissButton)
         val messageDialog = AlertDialog.Builder(this).setView(customLayout)
 
-
         val dialog = messageDialog.create()
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        //button for another hint
+        // button for another hint
         secHintButton.visibility = View.INVISIBLE
         secHintButton.setOnClickListener {
             textResponse.text = ""
         }
 
-        //button for dismiss alert dialog
-
-        homePageIntent = Intent(this, HomePageActivity::class.java)
+        // button for dismiss alert dialog
+        val homePageIntent = Intent(this, HomePageActivity::class.java)
         dismissButton.text = "Next lvl"
         dismissButton.setOnClickListener {
             dialog.dismiss()
@@ -404,136 +420,140 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
             }
         }
 
+        try {
+            val response = withContext(Dispatchers.IO) {
+                apiService.uploadImage(body).execute()
+            }
+            var score = 0
 
-        apiService.uploadImage(body).enqueue(object : Callback<Void> {
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                var score = 0
-
-                if (response.code() == 200) {
-                    val toastMessage = "Object found!"
-                    println("Object Found!")
-                    if (ExtraInfo.actualMilliseconds <= ExtraInfo.scoreThreshold1ms ){
-                        ExtraInfo.setScore(ExtraInfo.scoreThreshold1pts)
-                        score = ExtraInfo.scoreThreshold1pts
-                    } else if (ExtraInfo.actualMilliseconds > ExtraInfo.scoreThreshold1ms && ExtraInfo.actualMilliseconds <= ExtraInfo.scoreThreshold2ms) {
-                        ExtraInfo.setScore(ExtraInfo.scoreThreshold2pts)
-                        score = ExtraInfo.scoreThreshold2pts
-                    }else{
-                        ExtraInfo.setScore(ExtraInfo.scoreThreshold3pts)
-                        score = ExtraInfo.scoreThreshold3pts
-                    }
-
-
-                    if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL){
-                        textResponse.text = "Good job, you found the right object! You gained $score points. The game is ending though, your final score is: ${ExtraInfo.myScore}"
-                        dismissButton.text = "Home page"
-                        dismissButton.setOnClickListener {
-                            dialog.dismiss()
-                            startActivity(homePageIntent)
-                        }
-                    }
-                    else {
-                        textResponse.text ="Good job, you found the right object! You gained $score points, now get to the next level. champ ;)"
-                    }
-
-                } else if (response.code() == 250){
-                    val toastMessage = "Wrong object!"
-                    println("Wrong object!")
-                    if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL){
-                        textResponse.text = "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also the game is ending, your final score is: ${ExtraInfo.myScore}"
-                        dismissButton.text = "Home page"
-                        dismissButton.setOnClickListener {
-                            dialog.dismiss()
-                            startActivity(homePageIntent)
-                            }
-                    }
-                    else
-                        textResponse.text ="Tough luck buddy, that's not the right object ):. You'll get it next time, but in the meantime you lost 1 point (if you had any). "
-                    ExtraInfo.setScore(-1)
+            if (response.isSuccessful) {
+                val toastMessage = "Object found!"
+                println("Object Found!")
+                if (ExtraInfo.actualMilliseconds <= ExtraInfo.scoreThreshold1ms) {
+                    ExtraInfo.setScore(ExtraInfo.scoreThreshold1pts)
+                    score = ExtraInfo.scoreThreshold1pts
+                } else if (ExtraInfo.actualMilliseconds > ExtraInfo.scoreThreshold1ms && ExtraInfo.actualMilliseconds <= ExtraInfo.scoreThreshold2ms) {
+                    ExtraInfo.setScore(ExtraInfo.scoreThreshold2pts)
+                    score = ExtraInfo.scoreThreshold2pts
                 } else {
-                    val toastMessage = "Upload Image Failed"
-                    textResponse.text = "Your image hasn't been uploaded, something's wrong with the server ): "
+                    ExtraInfo.setScore(ExtraInfo.scoreThreshold3pts)
+                    score = ExtraInfo.scoreThreshold3pts
                 }
-                binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
-                dialog.show()
-                ExtraInfo.updateLevel()
+
+                if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
+                    textResponse.text = "Good job, you found the right object! You gained $score points. The game is ending though, your final score is: ${ExtraInfo.myScore}"
+                    dismissButton.text = "Home page"
+                    dismissButton.setOnClickListener {
+                        dialog.dismiss()
+                        startActivity(homePageIntent)
+                    }
+                } else {
+                    textResponse.text = "Good job, you found the right object! You gained $score points, now get to the next level. champ ;)"
+                }
+
+            } else if (response.code() == 250) {
+                val toastMessage = "Wrong object!"
+                println("Wrong object!")
+                if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
+                    textResponse.text = "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also, the game is ending, your final score is: ${ExtraInfo.myScore}"
+                    dismissButton.text = "Home page"
+                    dismissButton.setOnClickListener {
+                        dialog.dismiss()
+                        startActivity(homePageIntent)
+                    }
+                } else
+                    textResponse.text = "Tough luck buddy, that's not the right object ):. You'll get it next time, but in the meantime you lost 1 point (if you had any). "
+                ExtraInfo.setScore(-1)
+            } else {
+                val toastMessage = "Upload Image Failed"
+                textResponse.text = "Your image hasn't been uploaded, something's wrong with the server ): "
             }
 
-            override fun onFailure(call: Call<Void>, t: Throwable) {
-                textResponse.text = "Your image hasn't been uploaded, something's wrong with the server ): "
-                dialog.show()
+            binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
+            dialog.show()
+            ExtraInfo.updateLevel()
+        } catch (t: Throwable) {
+            textResponse.text = "Your image hasn't been uploaded, something's wrong with the server ): "
+            dismissButton.text = "Restart Game"
+            dismissButton.setOnClickListener {
+                dialog.dismiss()
+                startActivity(homePageIntent)
             }
-        })
+        }
     }
+
     private fun convertBitmapToByteArray(bitmap: Bitmap): ByteArray {
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         return baos.toByteArray()
     }
-    private fun showToast(msg:String){
-        Toast.makeText(this,msg, Toast.LENGTH_SHORT).show()
-    }
 
-    private fun sendHintRequest(objectToFind :String){
-        db.collection("hints")
-            .whereEqualTo("request", objectToFind)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    val hintDoc = querySnapshot.documents[0]
-                    val hintId = hintDoc.id
-                    getHintResponse(hintId)
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, "Error collection hints: $exception")
+
+    private suspend fun sendHintRequest(objectToFind: String) {
+        try {
+            val querySnapshot = withContext(Dispatchers.IO) {
+                // Perform the Firestore query on the IO thread
+                db.collection("hints")
+                    .whereEqualTo("request", objectToFind)
+                    .get()
+                    .await()
             }
 
-    }
-    private fun getHintResponse(hintID: String){
-        val docHintRef = db.collection("hints").document(hintID)
-        // Listen for the response
-        docHintRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                // Handle the error
-                return@addSnapshotListener
+            if (!querySnapshot.isEmpty) {
+                val hintDoc = querySnapshot.documents[0]
+                val hintId = hintDoc.id
+                getHintResponse(hintId,this)
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error collection hints: $e")
+        }
 
-            if (snapshot != null && snapshot.exists()) {
-                val response = snapshot.getString("hint") ?: ""
-                val secResponse = snapshot.getString("secondHint") ?: ""
-                if(response.isNotEmpty() && secResponse.isNotEmpty()){
-
-                    //Alert dialog to display hint
-                    val customLayout: View = layoutInflater.inflate(R.layout.activity_hint, null)
-                    val textResponse = customLayout.findViewById<TextView>(R.id.textResponse)
-                    val secHintButton = customLayout.findViewById<Button>(R.id.newButton)
-                    val dismissButton = customLayout.findViewById<Button>(R.id.dismissButton)
-
-                    textResponse.text = response
-
-                    val messageDialog = AlertDialog.Builder(this)
-                        //.setMessage(response)
-                        .setView(customLayout)
-
-                    val dialog = messageDialog.create()
-                    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                    dialog.show()
-
-                    //button for another hint
-                    secHintButton.setOnClickListener {
-                        textResponse.text = secResponse
-                    }
-                    //button for dismiss alert dialog
-                    dismissButton.setOnClickListener {
-                        dialog.dismiss()
-                    }
-
-                }
-            }
         }
     }
-    companion object {
-        const val TAG = "Hunt1Activity"
+private suspend fun getHintResponse(hintID: String, activity: Activity) {
+    try {
+        val db = FirebaseFirestore.getInstance()
+        val docHintRef = db.collection("hints").document(hintID)
+
+        val snapshot = withContext(Dispatchers.IO) {
+            docHintRef.get().await()
+        }
+
+        if (snapshot != null && snapshot.exists()) {
+            val response = snapshot.getString("hint") ?: ""
+            val secResponse = snapshot.getString("secondHint") ?: ""
+            if (response.isNotEmpty() && secResponse.isNotEmpty()) {
+                showHintDialog(activity, response, secResponse)
+            }
+        }
+    } catch (e: Exception) {
+        Log.e(TAG, "Error response collection hints: $e")
     }
 }
+
+private fun showHintDialog(activity: Activity, response: String, secResponse: String) {
+    val layoutInflater = LayoutInflater.from(activity)
+    val customLayout: View = layoutInflater.inflate(R.layout.activity_hint, null)
+    val textResponse = customLayout.findViewById<TextView>(R.id.textResponse)
+    val secHintButton = customLayout.findViewById<Button>(R.id.newButton)
+    val dismissButton = customLayout.findViewById<Button>(R.id.dismissButton)
+
+    textResponse.text = response
+
+    val messageDialog = AlertDialog.Builder(activity)
+        .setView(customLayout)
+
+    val dialog = messageDialog.create()
+    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    dialog.show()
+
+    secHintButton.setOnClickListener {
+        textResponse.text = secResponse
+    }
+
+    dismissButton.setOnClickListener {
+        dialog.dismiss()
+    }
+}
+
+
