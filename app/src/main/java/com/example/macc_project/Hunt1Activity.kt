@@ -122,7 +122,6 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
         getPermissions(PERMISSIONS_ALL)
 
         objectToFind = objectList[(0..4).random()]
-        objectToFind = objectList[(0..4).random()]
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
