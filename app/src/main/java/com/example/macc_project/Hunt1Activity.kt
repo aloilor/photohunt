@@ -557,7 +557,6 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
         userRef.update("points", ExtraInfo.myScore)
             .addOnSuccessListener { println("score successfully updated") }
             .addOnSuccessListener { println("Error updating the score") }
-
     }
     companion object {
         const val TAG = "Hunt1Activity"
