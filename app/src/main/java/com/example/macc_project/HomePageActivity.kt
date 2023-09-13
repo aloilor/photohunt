@@ -60,6 +60,7 @@ class HomePageActivity : AppCompatActivity() {
                     // retrieve the username from the document
                     username = document.getString("username")
                     if (username != null) {
+                        ExtraInfo.setUsername(username!!)
                         binding.username.text = username
                     } else {
                         Log.w(TAG,"Username doesn't exist")

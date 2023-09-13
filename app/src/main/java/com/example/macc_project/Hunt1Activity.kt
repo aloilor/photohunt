@@ -30,8 +30,6 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import com.example.macc_project.auth.Login
-import com.example.macc_project.databinding.ActivityHintBinding
 import com.example.macc_project.databinding.ActivityHunt1Binding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -42,6 +40,8 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -110,7 +110,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
 
         getPermissions(PERMISSIONS_ALL)
 
-        objectToFind = objectList[(0..5).random()]
+        objectToFind = objectList[(0..4).random()]
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
@@ -267,6 +267,13 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
 
         }, ContextCompat.getMainExecutor(this))
 
+    }
+
+
+
+    fun cleanup(){
+        cameraExecutor.shutdown()
+        mExtraInfo.stopTimer()
     }
 
     override fun onDestroy() {
@@ -428,6 +435,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
                         textResponse.text = "Good job, you found the right object! You gained $score points. The game is ending though, your final score is: ${ExtraInfo.myScore}"
                         dismissButton.text = "Home page"
                         dismissButton.setOnClickListener {
+                            cleanup()
                             dialog.dismiss()
                             startActivity(homePageIntent)
                         }
@@ -443,6 +451,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
                         textResponse.text = "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also the game is ending, your final score is: ${ExtraInfo.myScore}"
                         dismissButton.text = "Home page"
                         dismissButton.setOnClickListener {
+                            cleanup()
                             dialog.dismiss()
                             startActivity(homePageIntent)
                             }
@@ -455,12 +464,19 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
                     textResponse.text = "Your image hasn't been uploaded, something's wrong with the server ): "
                 }
                 binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
+                addScoreDB()
                 dialog.show()
                 ExtraInfo.updateLevel()
             }
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 textResponse.text = "Your image hasn't been uploaded, something's wrong with the server ): "
+                dismissButton.text = "Home page"
+                dismissButton.setOnClickListener {
+                    cleanup()
+                    dialog.dismiss()
+                    startActivity(homePageIntent)
+                }
                 dialog.show()
             }
         })
@@ -528,10 +544,20 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener {
                     dismissButton.setOnClickListener {
                         dialog.dismiss()
                     }
-
                 }
             }
         }
+    }
+
+    fun addScoreDB() {
+        val db = Firebase.firestore
+        println(ExtraInfo.myEmail)
+        val userId = FirebaseAuth.getInstance().currentUser!!.uid
+        val userRef = db.collection("users").document(userId)
+        userRef.update("points", ExtraInfo.myScore)
+            .addOnSuccessListener { println("score successfully updated") }
+            .addOnSuccessListener { println("Error updating the score") }
+
     }
     companion object {
         const val TAG = "Hunt1Activity"
