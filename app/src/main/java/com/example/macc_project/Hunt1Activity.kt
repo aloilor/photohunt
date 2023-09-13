@@ -427,6 +427,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
             val response = withContext(Dispatchers.IO) {
                 apiService.uploadImage(body).execute()
             }
+
             var score = 0
 
             if (response.isSuccessful) {
@@ -466,15 +467,14 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
                     }
                 } else
                     textResponse.text = "Tough luck buddy, that's not the right object ):. You'll get it next time, but in the meantime you lost 1 point (if you had any). "
-                    ExtraInfo.setScore(-1)
+                ExtraInfo.setScore(-1)
             } else {
                 val toastMessage = "Upload Image Failed"
                 textResponse.text = "Your image hasn't been uploaded, something's wrong with the server ): "
-                dismissButton.text = "Home Page"
+                dismissButton.text = "Home page"
                 dismissButton.setOnClickListener {
                     dialog.dismiss()
                     startActivity(homePageIntent)
-
                 }
             }
 
@@ -483,11 +483,10 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
             ExtraInfo.updateLevel()
         } catch (t: Throwable) {
             textResponse.text = "Your image hasn't been uploaded, something's wrong with the server ): "
-            dismissButton.text = "Home Page"
+            dismissButton.text = "Home page"
             dismissButton.setOnClickListener {
                 dialog.dismiss()
                 startActivity(homePageIntent)
-
             }
         }
     }
