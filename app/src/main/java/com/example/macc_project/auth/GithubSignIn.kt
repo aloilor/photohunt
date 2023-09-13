@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import com.example.macc_project.ExtraInfo
 import com.example.macc_project.HomePageActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -101,12 +102,17 @@ class GithubSignIn : AppCompatActivity() {
 
         val user = hashMapOf(
             "email" to currentUser.email,
-            "username" to username
+            "username" to username,
+            "points" to 0
         )
 
         db.collection("users").document(currentUser.uid)
             .set(user)
             .addOnSuccessListener {
+
+                ExtraInfo.setUsername(username)
+                currentUser.email?.let { it1 -> ExtraInfo.setEmail(it1) }
+
                 val intent = Intent(this, HomePageActivity::class.java)
                 intent.putExtra("username", username)
                 startActivity(intent)

@@ -14,6 +14,7 @@ class ExtraInfo {
         var myScore:Int = 0
         var myLevel:Int = 1
         var actualMilliseconds = 0
+        var myEmail = ""
 
 
         var MAX_LEVEL: Int = 3
@@ -24,6 +25,9 @@ class ExtraInfo {
         var scoreThreshold3pts = 2
 
 
+        fun setEmail (email:String){
+            myEmail = email.toString()
+        }
         fun setUsername(username:String){
             myUsername = username
         }

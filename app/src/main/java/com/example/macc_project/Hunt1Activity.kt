@@ -40,8 +40,11 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -71,11 +74,13 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
         Manifest.permission.ACCESS_COARSE_LOCATION
     )
 
-    private val objectList = listOf("desk",
+    private val objectList = listOf(
+        "desk",
         "mouse",
         "keyboard",
         "monitor",
-        "laptop")
+        "laptop"
+    )
 
     lateinit var objectToFind: String
 
@@ -85,7 +90,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
 
-    private var listener: ListenerRegistration?= null
+    private var listener: ListenerRegistration? = null
 
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private var longitude: Double = 0.0
@@ -94,7 +99,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
     private val interval: Long = 3000 // 10seconds
     private val fastestInterval: Long = 5000 // 5 seconds
     private lateinit var mLocationCallback: LocationCallback
-    private lateinit var mLastLocation : Location
+    private lateinit var mLastLocation: Location
 
 
     private lateinit var storage: FirebaseStorage
@@ -144,20 +149,20 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
         mLocationCallback = object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
                 p0 ?: return
-                for (location in p0.locations){
+                for (location in p0.locations) {
                     latitude = location.latitude
                     longitude = location.longitude
                     //Log.w("lat+long,update:","Latitude: $latitude" )
                     //Log.w("lat+long,update:","Longitude: $longitude" )
-                    binding.latitudeText.text = String.format("Lat: %.2f",latitude)
-                    binding.longitudeText.text = String.format("Long: %.2f",longitude)
+                    binding.latitudeText.text = String.format("Lat: %.2f", latitude)
+                    binding.longitudeText.text = String.format("Long: %.2f", longitude)
                 }
             }
         }
 
         // Initialize Retrofit
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.64:5000/")
+            .baseUrl("http://192.168.1.58:5000")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -180,7 +185,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
     }
 
     override fun onTimerFinished(minutes: Int, seconds: Int, deciseconds: Int, milliseconds: Int) {
-        val finalTime = (seconds*1000+milliseconds).toString()
+        val finalTime = (seconds * 1000 + milliseconds).toString()
         println("finaltime: $finalTime")
         ExtraInfo.setTime(finalTime)
     }
@@ -198,22 +203,25 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
         if (isLocationEnabled()) {
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-            mLocationRequest = LocationRequest.Builder(interval).setIntervalMillis(interval).setMinUpdateIntervalMillis(fastestInterval).setPriority(Priority.PRIORITY_HIGH_ACCURACY).build()
-            mFusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnCompleteListener(this) { task ->
-                mLastLocation = task.result
-                if (mLastLocation != null) {
-                    latitude = mLastLocation.latitude
-                    longitude = mLastLocation.longitude
-                    var latString = String.format("%.2f",latitude)
-                    var longString = String.format("%.2f",longitude)
-                    println("Lat: $latString + Long: $longString")
+            mLocationRequest = LocationRequest.Builder(interval).setIntervalMillis(interval)
+                .setMinUpdateIntervalMillis(fastestInterval)
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY).build()
+            mFusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                .addOnCompleteListener(this) { task ->
+                    mLastLocation = task.result
+                    if (mLastLocation != null) {
+                        latitude = mLastLocation.latitude
+                        longitude = mLastLocation.longitude
+                        var latString = String.format("%.2f", latitude)
+                        var longString = String.format("%.2f", longitude)
+                        println("Lat: $latString + Long: $longString")
 
 
-                    binding.latitudeText.text = "Lat: $latString"
-                    binding.longitudeText.text = "Long: $longString"
+                        binding.latitudeText.text = "Lat: $latString"
+                        binding.longitudeText.text = "Long: $longString"
+                    }
+                    startLocationUpdates()
                 }
-                startLocationUpdates()
-            }
         } else {
             Toast.makeText(this, "Turn on location", Toast.LENGTH_LONG).show()
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
@@ -232,7 +240,8 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
     private fun getPermissions(permissions: Array<String>) {
         permissions.forEach {
             if (ContextCompat.checkSelfPermission(this, it)
-                != PackageManager.PERMISSION_GRANTED)
+                != PackageManager.PERMISSION_GRANTED
+            )
                 requestPermissions(arrayOf(it), 1)
         }
     }
@@ -284,6 +293,11 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
     }
 
+    fun cleanup() {
+        cameraExecutor.shutdown()
+        mExtraInfo.stopTimer()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         job.cancel()
@@ -324,7 +338,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val imageBitmap: Bitmap  = BitmapFactory.decodeFile(photoFile.path)
+                    val imageBitmap: Bitmap = BitmapFactory.decodeFile(photoFile.path)
                     // Convert the Bitmap to a byte array
                     val data = convertBitmapToByteArray(imageBitmap)
 
@@ -388,13 +402,16 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
         }
 
     }
+
     private suspend fun uploadImageToServer(data: ByteArray) {
         val mediaType = "image/jpeg".toMediaTypeOrNull()
         val requestFile = RequestBody.create(mediaType, data)
 
         var username = ExtraInfo.myUsername
 
-        val body = MultipartBody.Part.createFormData("file", "$username-$objectToFind.jpg", requestFile)
+
+        val body =
+            MultipartBody.Part.createFormData("file", "$username-$objectToFind.jpg", requestFile)
 
         // response alert dialog
         val customLayout: View = layoutInflater.inflate(R.layout.activity_hint, null)
@@ -422,14 +439,17 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
             }
         }
 
+        println("We are here")
+
+
         try {
             val response = withContext(Dispatchers.IO) {
                 apiService.uploadImage(body).execute()
             }
+
             var score = 0
 
-            if (response.isSuccessful) {
-                val toastMessage = "Object found!"
+            if (response.code() == 200) {
                 println("Object Found!")
                 if (ExtraInfo.actualMilliseconds <= ExtraInfo.scoreThreshold1ms) {
                     ExtraInfo.setScore(ExtraInfo.scoreThreshold1pts)
@@ -443,51 +463,56 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
                 }
 
                 if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
-                    textResponse.text = "Good job, you found the right object! You gained $score points. The game is ending though, your final score is: ${ExtraInfo.myScore}"
+                    textResponse.text =
+                        "Good job, you found the right object! You gained $score points. The game is ending though, your final score is: ${ExtraInfo.myScore}"
                     dismissButton.text = "Home page"
                     dismissButton.setOnClickListener {
                         dialog.dismiss()
                         startActivity(homePageIntent)
                     }
                 } else {
-                    textResponse.text = "Good job, you found the right object! You gained $score points, now get to the next level. champ ;)"
+                    textResponse.text =
+                        "Good job, you found the right object! You gained $score points, now get to the next level. champ ;)"
                 }
 
             } else if (response.code() == 250) {
-                val toastMessage = "Wrong object!"
                 println("Wrong object!")
                 if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
-                    textResponse.text = "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also, the game is ending, your final score is: ${ExtraInfo.myScore}"
+                    textResponse.text =
+                        "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also, the game is ending, your final score is: ${ExtraInfo.myScore}"
                     dismissButton.text = "Home page"
                     dismissButton.setOnClickListener {
+                        cleanup()
                         dialog.dismiss()
                         startActivity(homePageIntent)
                     }
                 } else
-                    textResponse.text = "Tough luck buddy, that's not the right object ):. You'll get it next time, but in the meantime you lost 1 point (if you had any). "
-                    ExtraInfo.setScore(-1)
+                    textResponse.text =
+                        "Tough luck buddy, that's not the right object ):. You'll get it next time, but in the meantime you lost 1 point (if you had any). "
+                ExtraInfo.setScore(-1)
             } else {
-                val toastMessage = "Upload Image Failed"
-                textResponse.text = "Your image hasn't been uploaded, something's wrong with the server ): "
-                dismissButton.text = "Home Page"
+                textResponse.text =
+                    "Your image hasn't been uploaded, something's wrong with the server ): "
+                dismissButton.text = "Home page"
                 dismissButton.setOnClickListener {
+                    cleanup()
                     dialog.dismiss()
                     startActivity(homePageIntent)
-
                 }
             }
-
             binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
+            addScoreDB()
             dialog.show()
             ExtraInfo.updateLevel()
         } catch (t: Throwable) {
-            textResponse.text = "Your image hasn't been uploaded, something's wrong with the server ): "
-            dismissButton.text = "Home Page"
+            textResponse.text =
+                "Your image hasn't been uploaded, something's wrong with the server ): "
+            dismissButton.text = "Home page"
             dismissButton.setOnClickListener {
                 dialog.dismiss()
                 startActivity(homePageIntent)
-
             }
+            dialog.show()
         }
     }
 
@@ -511,57 +536,68 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
             if (!querySnapshot.isEmpty) {
                 val hintDoc = querySnapshot.documents[0]
                 val hintId = hintDoc.id
-                getHintResponse(hintId,this)
+                getHintResponse(hintId, this)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error collection hints: $e")
         }
-
-        }
     }
-private suspend fun getHintResponse(hintID: String, activity: Activity) {
-    try {
-        val db = FirebaseFirestore.getInstance()
-        val docHintRef = db.collection("hints").document(hintID)
 
-        val snapshot = withContext(Dispatchers.IO) {
-            docHintRef.get().await()
-        }
+    private suspend fun getHintResponse(hintID: String, activity: Activity) {
+        try {
+            val db = FirebaseFirestore.getInstance()
+            val docHintRef = db.collection("hints").document(hintID)
 
-        if (snapshot != null && snapshot.exists()) {
-            val response = snapshot.getString("hint") ?: ""
-            val secResponse = snapshot.getString("secondHint") ?: ""
-            if (response.isNotEmpty() && secResponse.isNotEmpty()) {
-                showHintDialog(activity, response, secResponse)
+            val snapshot = withContext(Dispatchers.IO) {
+                docHintRef.get().await()
             }
+
+            if (snapshot != null && snapshot.exists()) {
+                val response = snapshot.getString("hint") ?: ""
+                val secResponse = snapshot.getString("secondHint") ?: ""
+                if (response.isNotEmpty() && secResponse.isNotEmpty()) {
+                    showHintDialog(activity, response, secResponse)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error response collection hints: $e")
         }
-    } catch (e: Exception) {
-        Log.e(TAG, "Error response collection hints: $e")
-    }
-}
-
-private fun showHintDialog(activity: Activity, response: String, secResponse: String) {
-    val layoutInflater = LayoutInflater.from(activity)
-    val customLayout: View = layoutInflater.inflate(R.layout.activity_hint, null)
-    val textResponse = customLayout.findViewById<TextView>(R.id.textResponse)
-    val secHintButton = customLayout.findViewById<Button>(R.id.newButton)
-    val dismissButton = customLayout.findViewById<Button>(R.id.dismissButton)
-
-    textResponse.text = response
-
-    val messageDialog = AlertDialog.Builder(activity)
-        .setView(customLayout)
-
-    val dialog = messageDialog.create()
-    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-    dialog.show()
-
-    secHintButton.setOnClickListener {
-        textResponse.text = secResponse
     }
 
-    dismissButton.setOnClickListener {
-        dialog.dismiss()
+    private fun showHintDialog(activity: Activity, response: String, secResponse: String) {
+        val layoutInflater = LayoutInflater.from(activity)
+        val customLayout: View = layoutInflater.inflate(R.layout.activity_hint, null)
+        val textResponse = customLayout.findViewById<TextView>(R.id.textResponse)
+        val secHintButton = customLayout.findViewById<Button>(R.id.newButton)
+        val dismissButton = customLayout.findViewById<Button>(R.id.dismissButton)
+
+        textResponse.text = response
+
+        val messageDialog = AlertDialog.Builder(activity)
+            .setView(customLayout)
+
+        val dialog = messageDialog.create()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.show()
+
+        secHintButton.setOnClickListener {
+            textResponse.text = secResponse
+        }
+
+        dismissButton.setOnClickListener {
+            dialog.dismiss()
+        }
+    }
+
+    fun addScoreDB() {
+        val db = Firebase.firestore
+        println(ExtraInfo.myEmail)
+        val userId = FirebaseAuth.getInstance().currentUser!!.uid
+        val userRef = db.collection("users").document(userId)
+        userRef.update("points", ExtraInfo.myScore)
+            .addOnSuccessListener { println("score successfully updated") }
+            .addOnSuccessListener { println("Error updating the score") }
+
     }
 }
 

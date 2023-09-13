@@ -83,7 +83,7 @@ class Register : AppCompatActivity() {
         val user = hashMapOf(
             "email" to currentUser.email,
             "username" to username,
-
+            "points" to 0
         )
 
         db.collection("users").document(currentUser.uid)

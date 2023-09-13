@@ -74,8 +74,7 @@ class Login : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success
-                    ExtraInfo.setUsername(email)
-                    println(ExtraInfo.myUsername)
+                    ExtraInfo.setEmail(email)
 
                     val it = Intent(this, HomePageActivity::class.java)
                     it.putExtra("email", email)

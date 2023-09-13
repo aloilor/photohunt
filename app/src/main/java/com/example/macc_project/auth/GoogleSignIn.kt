@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import com.example.macc_project.ExtraInfo
 import com.example.macc_project.HomePageActivity
 import com.example.macc_project.LobbyGame
 import com.example.macc_project.R
@@ -96,13 +97,17 @@ class GoogleSignIn : AppCompatActivity() {
 
         val user = hashMapOf(
             "email" to currentUser.email,
-            "username" to currentUser.displayName!!.replace(" ", "")
+            "username" to currentUser.displayName!!.replace(" ", ""),
+            "points" to 0
         )
 
         db.collection("users").document(currentUser.uid)
             .set(user)
             .addOnSuccessListener {
+                currentUser.email?.let { it1 -> ExtraInfo.setEmail(it1) }
+                currentUser.displayName!!.replace(" ", "").let { it1 -> ExtraInfo.setUsername(it1) }
                 goToHomepage()
+
                 Toast.makeText(
                     baseContext, "User logged with google",
                     Toast.LENGTH_SHORT
