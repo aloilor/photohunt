@@ -29,35 +29,37 @@
         android:id="@+id/scoreTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Your Score is:"
-        android:textSize="40sp"
-        android:textStyle="bold"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="400dp"
         android:fontFamily="@font/electrolize"
+        android:text="Your final score is:"
         android:textColor="@color/green"
-        android:layout_marginLeft="65dp"
-        android:layout_marginTop="400dp"/>
+        android:textSize="40sp"
+        android:textStyle="bold" />
+
     <TextView
         android:id="@+id/score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        android:fontFamily="@font/electrolize"
-        android:textColor="@color/green"
         android:layout_marginLeft="170dp"
-        android:layout_marginTop="460dp"/>
+        android:layout_marginTop="461dp"
+        android:fontFamily="@font/electrolize"
+        android:text="30"
+        android:textColor="@color/green"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
     <TextView
         android:id="@+id/pt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="pt"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:layout_marginLeft="215dp"
+        android:layout_marginTop="470dp"
         android:fontFamily="@font/electrolize"
+        android:text="pts"
         android:textColor="@color/green"
-        android:layout_marginLeft="202dp"
-        android:layout_marginTop="470dp"/>
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
 
     <LinearLayout

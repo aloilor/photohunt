@@ -112,6 +112,9 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
 
     private lateinit var job: Job
 
+    private var hostname = "https://photohunt.loca.lt"
+
+
 
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.Main
@@ -175,7 +178,7 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
 
         // Initialize Retrofit
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.58:5000")
+            .baseUrl(hostname)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 

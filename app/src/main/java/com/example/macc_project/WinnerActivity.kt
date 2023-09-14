@@ -34,7 +34,7 @@ class WinnerActivity : AppCompatActivity() {
             finish()
         }
 
-        binding.score.text = ExtraInfo.myScore.toString()
+        binding.score.text = "${ExtraInfo.myScore.toString()}"
 
         binding.backButton.setOnClickListener {
             val it = Intent(this, HomePageActivity::class.java)
