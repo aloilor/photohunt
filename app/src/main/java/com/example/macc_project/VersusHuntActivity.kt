@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -17,6 +16,7 @@ import android.location.LocationManager
 import android.net.Uri
 import com.google.android.gms.location.LocationRequest
 import android.os.Bundle
+import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
@@ -32,7 +32,6 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-
 import com.example.macc_project.databinding.ActivityVersusHuntBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -40,7 +39,8 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
@@ -49,9 +49,6 @@ import com.google.firebase.storage.FirebaseStorage
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
@@ -61,10 +58,10 @@ import java.util.concurrent.Executors
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import okhttp3.OkHttpClient
-import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.resumeWithException
+
+
 
 
 class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, CoroutineScope {
@@ -93,6 +90,8 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
     private lateinit var cameraExecutor: ExecutorService
 
     private var listener: ListenerRegistration? = null
+    private  var lobbyListener: ListenerRegistration? = null
+
 
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private var longitude: Double = 0.0
@@ -150,14 +149,25 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
         val lobbyID = ExtraInfo.myLobbyID
 
         val lobbyRef = db.collection("lobbies").document(lobbyID)
-        lobbyRef
-            .get()
-            .addOnSuccessListener { document ->
-                if (document.get("player1") == ExtraInfo.myUsername)
-                    scoreOpponent = document.get("player2pts").toString()
-                else if(document.get("player2") == ExtraInfo.myUsername)
-                    scoreOpponent = document.get("player1pts").toString()
+
+        // Listen for changes in the lobby document
+        lobbyListener = lobbyRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.e(TAG, "Listen failed.", e)
+                return@addSnapshotListener
             }
+
+            if (snapshot != null && snapshot.exists()) {
+                val player1Name = snapshot.getString("player1") ?: ""
+
+                if (player1Name == ExtraInfo.myUsername)
+                    scoreOpponent = snapshot.get("player2pts").toString()
+                else
+                    scoreOpponent = snapshot.get("player1pts").toString()
+                binding.scoreOpponentText.text = "Opponent: 0$scoreOpponent"
+            }
+        }
+
         binding.scoreOpponentText.text = "Opponent: 0$scoreOpponent"
 
         binding.cameraCaptureButton.setOnClickListener {
@@ -183,7 +193,7 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
             }
         }
 
-        val okHttpClient = OkHttpClient.Builder().connectTimeout(40, TimeUnit.SECONDS).build()
+        val okHttpClient = OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS).build()
 
         // Initialize Retrofit
         val retrofit = Retrofit.Builder()
@@ -322,6 +332,8 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
     fun cleanup() {
         cameraExecutor.shutdown()
         mExtraInfo.stopTimer()
+        listener?.remove()
+        lobbyListener?.remove()
     }
 
     override fun onDestroy() {
@@ -632,6 +644,11 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
                 else
                     lobbyRef.update("player2pts", ExtraInfo.myScore)
             }
+    }
+
+
+    companion object {
+        private const val TAG = "VersusHuntActivity"
     }
 }
 

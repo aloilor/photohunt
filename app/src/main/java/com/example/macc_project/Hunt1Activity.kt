@@ -436,7 +436,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
                 if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
                     textResponse.text =
-                        "Good job, you found the right object! You gained $score points. The game is ending though, your final score is: ${ExtraInfo.myScore}"
+                        "Good job, you found the right object! You gained $score points. The game is ending though ):"
                     dismissButton.text = "End Page"
                     dismissButton.setOnClickListener {
                         cleanup()
@@ -445,14 +445,14 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
                     }
                 } else {
                     textResponse.text =
-                        "Good job, you found the right object! You gained $score points, now get to the next level. champ ;)"
+                        "Good job, you found the right object! You gained $score points, now get to the next level, champ ;)"
                 }
 
             } else if (response.code() == 250) {
                 println("Wrong object!")
                 if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
                     textResponse.text =
-                        "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also, the game is ending, your final score is: ${ExtraInfo.myScore}"
+                        "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also, the game is ending ):"
                     dismissButton.text = "End Page"
                     dismissButton.setOnClickListener {
                         cleanup()
