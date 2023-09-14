@@ -33,7 +33,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 
-import com.example.macc_project.databinding.ActivityHunt1Binding
+import com.example.macc_project.databinding.ActivityVersusHuntBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
@@ -65,7 +65,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resumeWithException
 
 
-class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, CoroutineScope {
+class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, CoroutineScope {
     private val REQUEST_IMAGE_CAPTURE = 1
 
     val PERMISSIONS_ALL = arrayOf<String>(
@@ -103,7 +103,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
 
     private lateinit var storage: FirebaseStorage
-    private lateinit var binding: ActivityHunt1Binding
+    private lateinit var binding: ActivityVersusHuntBinding
     private lateinit var apiService: ApiService
     private val db = FirebaseFirestore.getInstance()
 
@@ -112,13 +112,14 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
     private lateinit var job: Job
 
+
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.Main
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityHunt1Binding.inflate(layoutInflater)
+        binding = ActivityVersusHuntBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
@@ -137,7 +138,17 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
         mExtraInfo.setTimerUpdateListener(this)
         mExtraInfo.startTimer()
         binding.levelText.text = "Level ${ExtraInfo.myLevel}"
-        binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
+        binding.scoreYouText.text = "Score: 0${ExtraInfo.myScore}"
+        var scoreOpponent = "0"
+        val db = Firebase.firestore
+
+        val lobbyID = ExtraInfo.myLobbyID
+
+        val lobbyRef = db.collection("lobbies").document(lobbyID)
+        lobbyRef.get().addOnSuccessListener { document ->
+                scoreOpponent = document.get("player1").toString()
+        }
+        binding.scoreOpponentText.text = "Opponent: 0$scoreOpponent"
 
         binding.cameraCaptureButton.setOnClickListener {
             binding.cameraCaptureButton.isEnabled = false
@@ -164,7 +175,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
         // Initialize Retrofit
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.64:5000")
+            .baseUrl("http://192.168.1.58:5000")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -437,7 +448,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
         dismissButton.text = "Next lvl"
         dismissButton.setOnClickListener {
             dialog.dismiss()
-            Intent(this, Hunt1Activity::class.java).also {
+            Intent(this, VersusHuntActivity::class.java).also {
                 startActivity(it)
             }
         }
@@ -468,10 +479,10 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
                 if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
                     textResponse.text =
                         "Good job, you found the right object! You gained $score points. The game is ending though, your final score is: ${ExtraInfo.myScore}"
-                    dismissButton.text = "End Page"
+                    dismissButton.text = "Home page"
                     dismissButton.setOnClickListener {
                         dialog.dismiss()
-                        goToWinnerPage()
+                        startActivity(homePageIntent)
                     }
                 } else {
                     textResponse.text =
@@ -503,10 +514,10 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
                     startActivity(homePageIntent)
                 }
             }
-            binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
-            dialog.show()
-            ExtraInfo.updateLevel()
+            binding.scoreYouText.text = "Score: 0${ExtraInfo.myScore}"
             addScoreDB()
+            ExtraInfo.updateLevel()
+            dialog.show()
         } catch (t: Throwable) {
             textResponse.text =
                 "Your image hasn't been uploaded, something's wrong with the server ): "
@@ -594,21 +605,19 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
     fun addScoreDB() {
         val db = Firebase.firestore
-        println(ExtraInfo.myEmail)
-        val userId = FirebaseAuth.getInstance().currentUser!!.uid
-        val userRef = db.collection("users").document(userId)
-        userRef.update("points", ExtraInfo.myScore)
-            .addOnSuccessListener {
-                println("score successfully updated")
 
+        val lobbyID = ExtraInfo.myLobbyID
+
+        val lobbyRef = db.collection("lobbies").document(lobbyID)
+        lobbyRef
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.get("player1") == ExtraInfo.myUsername) {
+                    lobbyRef.update("player1pts",ExtraInfo.myScore)
+                }
+                else
+                    lobbyRef.update("player2pts", ExtraInfo.myScore)
             }
-            .addOnFailureListener { println("Error updating the score") }
-
-    }
-    private fun goToWinnerPage(){
-
-        val intent = Intent(this, WinnerActivity::class.java)
-        startActivity(intent)
     }
 }
 

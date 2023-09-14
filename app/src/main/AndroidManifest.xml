@@ -57,6 +57,9 @@
         <activity
             android:name=".HomePageActivity"
             android:exported="false" />
+
+        <activity android:name=".VersusHuntActivity"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
