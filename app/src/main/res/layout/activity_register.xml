@@ -15,6 +15,14 @@
         app:cardCornerRadius="10dp"
         app:cardElevation="20dp"
         android:background="@drawable/myedittext">
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="198dp"
+            android:layout_marginRight="88dp"
+            app:srcCompat="@drawable/photohunt_logo" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

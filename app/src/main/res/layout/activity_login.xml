@@ -8,6 +8,7 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,6 +17,14 @@
         app:cardCornerRadius="10dp"
         app:cardElevation="20dp">
 
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+           android:layout_marginBottom="128dp"
+            android:layout_marginRight="62dp"
+            app:srcCompat="@drawable/photohunt_logo" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,6 +42,7 @@
                 android:textSize="36sp"
                 android:textStyle="bold"
                 android:fontFamily="@font/electrolize"/>
+
 
             <EditText
                 android:id="@+id/LoginUsername"

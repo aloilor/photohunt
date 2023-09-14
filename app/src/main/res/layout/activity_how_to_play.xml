@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/alert_backgroud"
     android:padding="20dp"
     app:cornerRadius="10dp"
     tools:context=".HowToPlayActivity">
+
     <TextView
         android:id="@+id/textTitle"
         android:layout_width="wrap_content"
