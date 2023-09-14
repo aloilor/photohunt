@@ -20,12 +20,15 @@ import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.util.Size
 import android.view.LayoutInflater
+import android.view.Surface.ROTATION_270
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -60,7 +63,9 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
+import okhttp3.OkHttpClient
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resumeWithException
 
@@ -165,9 +170,13 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
         }
 
         // Initialize Retrofit
+
+        val okHttpClient = OkHttpClient.Builder().connectTimeout(40, TimeUnit.SECONDS).build()
+
         val retrofit = Retrofit.Builder()
             .baseUrl(hostname)
             .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
             .build()
 
         apiService = retrofit.create(ApiService::class.java)
@@ -344,7 +353,8 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val imageBitmap: Bitmap = BitmapFactory.decodeFile(photoFile.path)
                     // Convert the Bitmap to a byte array
-                    val data = convertBitmapToByteArray(imageBitmap)
+                    val imageresized = Bitmap.createScaledBitmap(imageBitmap, 224, 224, true)
+                    val data = convertBitmapToByteArray(imageresized)
 
                     //Upload the image to the python server
                     launch {
@@ -365,54 +375,11 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
             })
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            val imageBitmap = data?.extras?.get("data") as Bitmap
-            val fileName = "image_${System.currentTimeMillis()}.jpg"
-            val storageRef = storage.reference.child("images").child(fileName)
-
-            // Convert the Bitmap to a byte array
-            val data = convertBitmapToByteArray(imageBitmap)
-
-            //call fun to send image to server with coroutine
-            launch {
-                uploadImageToServer(data)
-            }
-
-            // Upload the image to Firebase Storage
-            val uploadTask = storageRef.putBytes(data)
-            /*
-            uploadTask.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    storageRef.downloadUrl.addOnSuccessListener { uri ->
-                        val downloadUrl = uri.toString()
-                        Log.d("MainActivity", "Download URL: $downloadUrl")
-
-                        // Use the downloadUrl with Glide to load and display the image
-                        Glide.with(this)
-                            .load(downloadUrl)
-                            .error(R.drawable.img) // Set an error image if loading fails
-                            .into(binding.image)
-
-                        Toast.makeText(this, "Image uploaded successfully", Toast.LENGTH_SHORT)
-                            .show()
-                        // You can save the downloadUrl or use it to display the image later
-                    } } else {
-                    // Image upload failed
-                    val exception = task.exception
-                    // Handle the exception
-            */
-        }
-
-    }
-
     private suspend fun uploadImageToServer(data: ByteArray) {
         val mediaType = "image/jpeg".toMediaTypeOrNull()
         val requestFile = RequestBody.create(mediaType, data)
 
         var username = ExtraInfo.myUsername
-
 
         val body =
             MultipartBody.Part.createFormData("file", "$username-$objectToFind.jpg", requestFile)

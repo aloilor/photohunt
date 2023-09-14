@@ -60,7 +60,9 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
+import okhttp3.OkHttpClient
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resumeWithException
 
@@ -176,10 +178,13 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
             }
         }
 
+        val okHttpClient = OkHttpClient.Builder().connectTimeout(40, TimeUnit.SECONDS).build()
+
         // Initialize Retrofit
         val retrofit = Retrofit.Builder()
             .baseUrl(hostname)
             .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
             .build()
 
         apiService = retrofit.create(ApiService::class.java)
@@ -355,8 +360,9 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val imageBitmap: Bitmap = BitmapFactory.decodeFile(photoFile.path)
+                    val imageresized = Bitmap.createScaledBitmap(imageBitmap, 224, 224, true)
                     // Convert the Bitmap to a byte array
-                    val data = convertBitmapToByteArray(imageBitmap)
+                    val data = convertBitmapToByteArray(imageresized)
 
                     //Upload the image to the python server
                     launch {

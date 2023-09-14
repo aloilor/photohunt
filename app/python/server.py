@@ -43,7 +43,6 @@ def upload_image():
     else: return 'Wrong object!', 250
 
 
-@app.route('/image_recognition', methods = ['PUT'])
 def check_image(file):
     
     """Run model_resnet50 prediction on image
