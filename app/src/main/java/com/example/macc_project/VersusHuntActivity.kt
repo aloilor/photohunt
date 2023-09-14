@@ -33,7 +33,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 
-import com.example.macc_project.databinding.ActivityHunt1Binding
+import com.example.macc_project.databinding.ActivityVersusHuntBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
@@ -65,7 +65,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resumeWithException
 
 
-class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, CoroutineScope {
+class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, CoroutineScope {
     private val REQUEST_IMAGE_CAPTURE = 1
 
     val PERMISSIONS_ALL = arrayOf<String>(
@@ -103,7 +103,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
 
     private lateinit var storage: FirebaseStorage
-    private lateinit var binding: ActivityHunt1Binding
+    private lateinit var binding: ActivityVersusHuntBinding
     private lateinit var apiService: ApiService
     private val db = FirebaseFirestore.getInstance()
 
@@ -112,13 +112,14 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
     private lateinit var job: Job
 
+
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.Main
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityHunt1Binding.inflate(layoutInflater)
+        binding = ActivityVersusHuntBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
@@ -437,7 +438,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
         dismissButton.text = "Next lvl"
         dismissButton.setOnClickListener {
             dialog.dismiss()
-            Intent(this, Hunt1Activity::class.java).also {
+            Intent(this, VersusHuntActivity::class.java).also {
                 startActivity(it)
             }
         }
@@ -505,8 +506,8 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
             }
             binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
             addScoreDB()
-            dialog.show()
             ExtraInfo.updateLevel()
+            dialog.show()
         } catch (t: Throwable) {
             textResponse.text =
                 "Your image hasn't been uploaded, something's wrong with the server ): "
@@ -594,13 +595,19 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
     fun addScoreDB() {
         val db = Firebase.firestore
-        println(ExtraInfo.myEmail)
-        val userId = FirebaseAuth.getInstance().currentUser!!.uid
-        val userRef = db.collection("users").document(userId)
-        userRef.update("points", ExtraInfo.myScore)
-            .addOnSuccessListener { println("score successfully updated") }
-            .addOnSuccessListener { println("Error updating the score") }
 
+        val lobbyID = ExtraInfo.myLobbyID
+
+        val lobbyRef = db.collection("lobbies").document(lobbyID)
+        lobbyRef
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.get("player1") == ExtraInfo.myUsername) {
+                    lobbyRef.update("player1pts",ExtraInfo.myScore)
+                }
+                else
+                    lobbyRef.update("player2pts", ExtraInfo.myScore)
+            }
     }
 }
 

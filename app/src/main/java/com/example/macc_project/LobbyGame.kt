@@ -112,7 +112,7 @@ class LobbyGame : AppCompatActivity() {
 
                 if (statusGame == "started" && !player2Name.isEmpty() && !player1Name.isEmpty()) {
                     Handler().postDelayed({
-                        val intent = Intent(this, Hunt1Activity::class.java)
+                        val intent = Intent(this, VersusHuntActivity::class.java)
                         intent.putExtra("username", username)
                         intent.putExtra("lobbyId", lobbyId)
                         startActivity(intent)
