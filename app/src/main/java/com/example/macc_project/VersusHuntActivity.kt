@@ -150,9 +150,14 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
         val lobbyID = ExtraInfo.myLobbyID
 
         val lobbyRef = db.collection("lobbies").document(lobbyID)
-        lobbyRef.get().addOnSuccessListener { document ->
-                scoreOpponent = document.get("player1").toString()
-        }
+        lobbyRef
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.get("player1") == ExtraInfo.myUsername)
+                    scoreOpponent = document.get("player2pts").toString()
+                else if(document.get("player2") == ExtraInfo.myUsername)
+                    scoreOpponent = document.get("player1pts").toString()
+            }
         binding.scoreOpponentText.text = "Opponent: 0$scoreOpponent"
 
         binding.cameraCaptureButton.setOnClickListener {
