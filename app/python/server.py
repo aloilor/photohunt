@@ -1,6 +1,8 @@
 import os
 import sys
-from flask import Flask, request
+from flask import Flask, request,  jsonify
+import firebase_admin
+from firebase_admin import credentials, firestore
 import numpy as np
 from PIL import Image
 import requests
@@ -80,6 +82,48 @@ def check_image(file):
         if (objectToCheck in it[1]): return True
     print(predictions)
     return False
+
+#Function to get data lobbies from firebase
+def getLobbyById(lobby_id):
+    # Initialize Firebase credentials
+    cred= credentials.Certificate("C:\\Users\\Christian\\Desktop\\firebaseSDK.json")
+    firebase_admin.initialize_app(cred)
+
+    # Initialize Firestore
+    db = firestore.client()
+
+    # Reference to the "lobbies" collection
+    lobbies_ref = db.collection("lobbies")
+
+    # Query where "statusGame" is equal to "ended"
+    query = lobbies_ref.lobbies_ref.where("lobby_id", "==", lobby_id).where("status", "==", "ended").stream()
+
+    # Retrieve the lobby data, if found
+    lobby = None
+    for doc in query:
+        lobby = doc.to_dict()
+        break
+
+    # Clean up Firebase SDK
+    firebase_admin.delete_app(firebase_admin.get_app())
+
+    return lobby
+
+@app.route('/get_lobby', methods=['GET'])
+def getLobbyEndpoint():
+    # Get the lobby_id from the query parameters
+    lobby_id = request.args.get('lobby_id')
+
+    if not lobby_id:
+        return jsonify({"error": "Lobby ID is missing."}), 400
+
+    lobby = getLobbyById(lobby_id)
+
+    if lobby is None:
+        return jsonify({"error": "Lobby not found or the status is not 'ended'."}), 404
+    print(lobby)
+
+    return jsonify(lobby)
 
     
 
