@@ -5,65 +5,55 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/alert_backgroud"
-    android:padding="5dp"
-    app:cornerRadius="10dp">
+    android:padding="20dp"
+    app:cornerRadius="10dp"
+    tools:context=".HowToPlayActivity">
     <TextView
         android:id="@+id/textTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/electrolize"
-        android:text="Hint"
+        android:text="How To Play"
         android:gravity="center|center_vertical"
         android:textColor="@color/green"
         android:textSize="30sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/textResponse"
+        app:layout_constraintBottom_toTopOf="@id/textGame"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textResponse"
+        android:id="@+id/textGame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/electrolize"
-        android:text="Hint"
-        android:gravity="center|center_vertical"
+       android:gravity="center|center_vertical"
+        android:text="Welcome to photoHunt! Capture the three hidden treasures via hints in the three treasure hunts.
+Log in, get the Hint, shoot the treasures within 15 seconds and compete for high scores.
+Maximise your points with quick and accurate shots! Hurry up, Discover, compete, and become the best photo hunter!!"
         android:textColor="@color/green"
-        android:textSize="20sp"
+        android:textSize="25sp"
         android:textStyle="bold"
-        android:layout_marginBottom="5dp"
-        app:layout_constraintBottom_toTopOf="@id/newButton"
+        app:layout_constraintBottom_toTopOf="@+id/homeButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/newButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="SecondHint"
-        android:fontFamily="@font/electrolize"
-        android:textSize="15sp"
-        android:backgroundTint="@color/green"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginRight="10dp"
-      android:layout_marginBottom="5dp"
-        app:cornerRadius="10dp" />
+
 
     <Button
-        android:id="@+id/dismissButton"
-        android:layout_width="wrap_content"
+        android:id="@+id/homeButton"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:text="Close"
-        android:fontFamily="@font/electrolize"
-        android:textSize="15sp"
-        android:backgroundTint="@color/green"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/newButton"
-        android:layout_marginRight="15dp"
         android:layout_marginBottom="5dp"
-        app:cornerRadius="10dp" />
+        android:backgroundTint="@color/green"
+        android:fontFamily="@font/electrolize"
+        android:text="Back to Home Page"
+        android:textSize="20sp"
+        app:cornerRadius="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import com.example.macc_project.R
 import com.google.firebase.auth.FirebaseAuth
@@ -27,6 +28,10 @@ class Register : AppCompatActivity() {
         val registerButton = findViewById<Button>(R.id.RegisterButton)
         registerButton.setOnClickListener {
             registerUser()
+        }
+        val loginButton = findViewById<TextView>(R.id.signinText)
+        loginButton.setOnClickListener {
+            goToLogin()
         }
 
 

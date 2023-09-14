@@ -96,4 +96,17 @@
                 android:fontFamily="@font/electrolize"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+    <TextView
+        android:id="@+id/signinText"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginBottom="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="8dp"
+        android:text="Already have an account? Login Now"
+        android:fontFamily="@font/electrolize"
+        android:textAlignment="center"
+        android:textColor="#333333"
+        android:textSize="14sp" />
 </LinearLayout>

@@ -107,6 +107,11 @@ class HomePageActivity : AppCompatActivity() {
                 startActivity(it)
             }
         }
+        binding.HowToPlayButton.setOnClickListener {
+            Intent(this, HowToPlayActivity::class.java).also {
+                startActivity(it)
+            }
+        }
         binding.logoutButton.setOnClickListener{
             logoutDialog.show()
 
