@@ -37,6 +37,7 @@ class LobbyGame : AppCompatActivity() {
                     // Join the first available lobby
                     val lobbyDoc = querySnapshot.documents[0]
                     val lobbyId = lobbyDoc.id
+                    ExtraInfo.setLobbyID(lobbyId)
                     joinLobby(lobbyId)
                 } else {
                     // If no lobby is available, create a new one
@@ -58,8 +59,12 @@ class LobbyGame : AppCompatActivity() {
             "lobby_id" to lobbyId,
             "player1" to username,
             "player2" to "",
+            "player1pts" to 0,
+            "player2pts" to 0,
             "statusGame" to "waiting"
         )
+
+        ExtraInfo.setLobbyID(lobbyId)
 
         db.collection("lobbies")
             .document(lobbyId)
