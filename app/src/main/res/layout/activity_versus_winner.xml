@@ -8,6 +8,7 @@
     android:orientation="vertical"
     tools:context=".VersusWinnerActivity">
 
+
     <LinearLayout
         android:id="@+id/cubeLayout"
         android:layout_width="match_parent"
@@ -21,18 +22,33 @@
         android:id="@+id/myGLSurfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="200dp"
-        android:layout_marginBottom="200dp" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="150dp" />
 
 
     <TextView
-        android:id="@+id/scoreTitle"
+        android:id="@+id/scoreTitleYou"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="50dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="90dp"
         android:fontFamily="@font/electrolize"
         android:text="Your final score is:"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/green"
+        android:textSize="40sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/scoreTitleOpp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="550dp"
+        android:fontFamily="@font/electrolize"
+        android:text="Your opponent's final score is:"
         android:textColor="@color/green"
         android:textSize="40sp"
         android:textStyle="bold" />
@@ -42,7 +58,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="170dp"
-        android:layout_marginTop="160dp"
+        android:layout_marginTop="140dp"
+        android:fontFamily="@font/electrolize"
+        android:text="30"
+        android:textColor="@color/green"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/scoreOpp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="170dp"
+        android:layout_marginTop="650dp"
         android:fontFamily="@font/electrolize"
         android:text="30"
         android:textColor="@color/green"
@@ -53,8 +81,8 @@
         android:id="@+id/pt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="220dp"
-        android:layout_marginTop="160dp"
+        android:layout_marginLeft="215dp"
+        android:layout_marginTop="146dp"
         android:fontFamily="@font/electrolize"
         android:text="pts"
         android:textColor="@color/green"
@@ -62,7 +90,38 @@
         android:textStyle="bold" />
 
 
+    <TextView
+        android:id="@+id/pt2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="215dp"
+        android:layout_marginTop="656dp"
+        android:fontFamily="@font/electrolize"
+        android:text="pts"
+        android:textColor="@color/green"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
+    <LinearLayout
+        android:id="@+id/buttonsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="30dp"
+        android:gravity="center"
+        android:orientation="vertical">
 
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:backgroundTint="@color/green"
+            android:fontFamily="@font/electrolize"
+            android:text="Back to Home Page"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:cornerRadius="10dp" />
 
+    </LinearLayout>
 </RelativeLayout>
