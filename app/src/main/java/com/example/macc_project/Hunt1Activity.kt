@@ -162,7 +162,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
         // Initialize Retrofit
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.58:5000")
+            .baseUrl("http://192.168.1.64:5000")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -465,10 +465,10 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
                 if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
                     textResponse.text =
                         "Good job, you found the right object! You gained $score points. The game is ending though, your final score is: ${ExtraInfo.myScore}"
-                    dismissButton.text = "Home page"
+                    dismissButton.text = "End Page"
                     dismissButton.setOnClickListener {
                         dialog.dismiss()
-                        startActivity(homePageIntent)
+                        goToWinnerPage()
                     }
                 } else {
                     textResponse.text =
@@ -501,9 +501,9 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
                 }
             }
             binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
-            addScoreDB()
             dialog.show()
             ExtraInfo.updateLevel()
+            addScoreDB()
         } catch (t: Throwable) {
             textResponse.text =
                 "Your image hasn't been uploaded, something's wrong with the server ): "
@@ -595,9 +595,17 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
         val userId = FirebaseAuth.getInstance().currentUser!!.uid
         val userRef = db.collection("users").document(userId)
         userRef.update("points", ExtraInfo.myScore)
-            .addOnSuccessListener { println("score successfully updated") }
-            .addOnSuccessListener { println("Error updating the score") }
+            .addOnSuccessListener {
+                println("score successfully updated")
 
+            }
+            .addOnFailureListener { println("Error updating the score") }
+
+    }
+    private fun goToWinnerPage(){
+
+        val intent = Intent(this, WinnerActivity::class.java)
+        startActivity(intent)
     }
 }
 

@@ -28,6 +28,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".WinnerActivity"
+            android:exported="false" />
+        <activity
             android:name=".ScoreboardActivity"
             android:exported="false" />
         <activity
