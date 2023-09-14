@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Hunt1Activity">
+    tools:context=".VersusHuntActivity">
 
     <androidx.camera.view.PreviewView
         android:id="@+id/viewFinder"
@@ -76,8 +76,8 @@
         android:id="@+id/hintButton"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginStart="290dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginStart="310dp"
+        android:layout_marginTop="15dp"
         android:backgroundTint="@color/white"
         android:src="@drawable/ic_hint"
         app:layout_constraintEnd_toEndOf="parent"
@@ -89,8 +89,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="15dp"
-        android:layout_marginBottom="490dp"
+        android:layout_marginStart="175dp"
+        android:layout_marginBottom="540dp"
         android:fontFamily="@font/electrolize"
         android:text="Level 1"
         android:textColor="@color/green"
@@ -99,18 +99,32 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/scoreText"
+        android:id="@+id/scoreYouText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginStart="15dp"
         android:layout_marginBottom="440dp"
         android:fontFamily="@font/electrolize"
-        android:text="Score: 000"
+        android:text="You: 000"
         android:textColor="@color/green"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/camera_capture_button"
         app:layout_constraintStart_toStartOf="parent" />
 
+
+    <TextView
+        android:id="@+id/scoreOpponentText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="410dp"
+        android:fontFamily="@font/electrolize"
+        android:text="Opponent: 000"
+        android:textColor="@color/green"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/camera_capture_button"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

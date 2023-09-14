@@ -138,7 +138,17 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
         mExtraInfo.setTimerUpdateListener(this)
         mExtraInfo.startTimer()
         binding.levelText.text = "Level ${ExtraInfo.myLevel}"
-        binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
+        binding.scoreYouText.text = "Score: 0${ExtraInfo.myScore}"
+        var scoreOpponent = "0"
+        val db = Firebase.firestore
+
+        val lobbyID = ExtraInfo.myLobbyID
+
+        val lobbyRef = db.collection("lobbies").document(lobbyID)
+        lobbyRef.get().addOnSuccessListener { document ->
+                scoreOpponent = document.get("player1").toString()
+        }
+        binding.scoreOpponentText.text = "Opponent: 0$scoreOpponent"
 
         binding.cameraCaptureButton.setOnClickListener {
             binding.cameraCaptureButton.isEnabled = false
@@ -504,7 +514,7 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
                     startActivity(homePageIntent)
                 }
             }
-            binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
+            binding.scoreYouText.text = "Score: 0${ExtraInfo.myScore}"
             addScoreDB()
             ExtraInfo.updateLevel()
             dialog.show()

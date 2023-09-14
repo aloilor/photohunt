@@ -59,8 +59,8 @@ class LobbyGame : AppCompatActivity() {
             "lobby_id" to lobbyId,
             "player1" to username,
             "player2" to "",
-            "player1pts" to 0,
-            "player2pts" to 0,
+            "player1pts" to "00",
+            "player2pts" to "00",
             "statusGame" to "waiting"
         )
 
@@ -115,6 +115,7 @@ class LobbyGame : AppCompatActivity() {
                         val intent = Intent(this, VersusHuntActivity::class.java)
                         intent.putExtra("username", username)
                         intent.putExtra("lobbyId", lobbyId)
+                        listener.remove()
                         startActivity(intent)
                     }, 3000)
                 }
