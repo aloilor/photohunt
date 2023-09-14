@@ -63,6 +63,8 @@
         <activity
             android:name=".VersusHuntActivity"
             android:exported="false" />
+        <activity android:name=".VersusWinnerActivity"
+            android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

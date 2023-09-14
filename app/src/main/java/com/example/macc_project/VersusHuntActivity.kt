@@ -504,11 +504,12 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
 
                 if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
                     textResponse.text =
-                        "Good job, you found the right object! You gained $score points. The game is ending though, your final score is: ${ExtraInfo.myScore}"
-                    dismissButton.text = "Home page"
+                        "Good job, you found the right object! You gained $score points. The game is ending though ):"
+                    dismissButton.text = "End Page"
                     dismissButton.setOnClickListener {
+                        cleanup()
                         dialog.dismiss()
-                        startActivity(homePageIntent)
+                        goToWinnerPage()
                     }
                 } else {
                     textResponse.text =
@@ -519,12 +520,12 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
                 println("Wrong object!")
                 if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
                     textResponse.text =
-                        "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also, the game is ending, your final score is: ${ExtraInfo.myScore}"
-                    dismissButton.text = "Home page"
+                        "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also, the game is ending"
+                    dismissButton.text = "End Page"
                     dismissButton.setOnClickListener {
                         cleanup()
                         dialog.dismiss()
-                        startActivity(homePageIntent)
+                        goToWinnerPage()
                     }
                 } else
                     textResponse.text =
@@ -644,6 +645,11 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
                 else
                     lobbyRef.update("player2pts", ExtraInfo.myScore)
             }
+    }
+
+    private fun goToWinnerPage(){
+        val intent = Intent(this, VersusWinnerActivity::class.java)
+        startActivity(intent)
     }
 
 
