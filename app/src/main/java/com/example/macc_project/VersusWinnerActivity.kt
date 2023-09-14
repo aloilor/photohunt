@@ -71,6 +71,8 @@ class VersusWinnerActivity : AppCompatActivity() {
             if (response != null && response.isSuccessful) {
                 val responseBody = response.body()
 
+                println(responseBody.toString())
+
                 if (responseBody != null) {
                     val jsonString = responseBody.string()
                     val jsonObject = JsonParser.parseString(jsonString).asJsonObject
@@ -95,7 +97,9 @@ class VersusWinnerActivity : AppCompatActivity() {
                     apiService.getLobby(lobbyId)
                 }
             } catch (e: Exception) {
+                println("errore: $e" )
                 Response.error(500, ResponseBody.create(null, "An error occurred"))
+
             }
         }
 
