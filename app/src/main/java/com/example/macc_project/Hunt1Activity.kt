@@ -164,7 +164,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
         // Initialize Retrofit
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.64:5000")
+            .baseUrl("http://192.168.1.58:5000")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -470,6 +470,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
                         "Good job, you found the right object! You gained $score points. The game is ending though, your final score is: ${ExtraInfo.myScore}"
                     dismissButton.text = "End Page"
                     dismissButton.setOnClickListener {
+                        cleanup()
                         dialog.dismiss()
                         goToWinnerPage()
                     }
@@ -483,11 +484,11 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
                 if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
                     textResponse.text =
                         "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also, the game is ending, your final score is: ${ExtraInfo.myScore}"
-                    dismissButton.text = "Home page"
+                    dismissButton.text = "End Page"
                     dismissButton.setOnClickListener {
                         cleanup()
                         dialog.dismiss()
-                        startActivity(homePageIntent)
+                        goToWinnerPage()
                     }
                 } else
                     textResponse.text =
