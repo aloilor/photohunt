@@ -59,8 +59,8 @@ class LobbyGame : AppCompatActivity() {
             "lobby_id" to lobbyId,
             "player1" to username,
             "player2" to "",
-            "player1pts" to "00",
-            "player2pts" to "00",
+            "player1pts" to 0,
+            "player2pts" to 0,
             "player1status" to "waiting",
             "player2status" to "waiting",
             "statusGame" to "waiting"

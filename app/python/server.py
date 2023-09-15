@@ -102,12 +102,13 @@ def getLobbyById(lobby_id):
         lobby = doc.to_dict()
         break
 
+    print(lobby)
     # Clean up Firebase SDK
     firebase_admin.delete_app(firebase_admin.get_app())
 
     return lobby
 
-@app.route('/get_lobby/<lobby_id>   ', methods=['GET'])
+@app.route('/get_lobby/<lobby_id>', methods=['GET'])
 def getLobbyEndpoint(lobby_id):
     print(lobby_id)
 
@@ -118,7 +119,7 @@ def getLobbyEndpoint(lobby_id):
 
     if lobby is None:
         return jsonify({"error": "Lobby not found or the status is not 'ended'."}), 404
-    print(lobby)
+    
 
     return jsonify(lobby)
 

@@ -144,7 +144,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
         mExtraInfo.setTimerUpdateListener(this)
         mExtraInfo.startTimer()
         binding.levelText.text = "Level ${ExtraInfo.myLevel}"
-        binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
+        binding.scoreText.text = "Score: ${ExtraInfo.myScore}"
 
         binding.cameraCaptureButton.setOnClickListener {
             binding.cameraCaptureButton.isEnabled = false
@@ -473,7 +473,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
                     startActivity(homePageIntent)
                 }
             }
-            binding.scoreText.text = "Score: 0${ExtraInfo.myScore}"
+            binding.scoreText.text = "Score: ${ExtraInfo.myScore}"
             dialog.show()
             ExtraInfo.updateLevel()
             addScoreDB()

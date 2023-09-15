@@ -142,7 +142,7 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
         mExtraInfo.setTimerUpdateListener(this)
         mExtraInfo.startTimer()
         binding.levelText.text = "Level ${ExtraInfo.myLevel}"
-        binding.scoreYouText.text = "Score: 0${ExtraInfo.myScore}"
+        binding.scoreYouText.text = "Score: ${ExtraInfo.myScore}"
         var scoreOpponent = "0"
         val db = Firebase.firestore
 
@@ -164,11 +164,11 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
                     scoreOpponent = snapshot.get("player2pts").toString()
                 else
                     scoreOpponent = snapshot.get("player1pts").toString()
-                binding.scoreOpponentText.text = "Opponent: 0$scoreOpponent"
+                binding.scoreOpponentText.text = "Opponent: $scoreOpponent"
             }
         }
 
-        binding.scoreOpponentText.text = "Opponent: 0$scoreOpponent"
+        binding.scoreOpponentText.text = "Opponent: $scoreOpponent"
 
         binding.cameraCaptureButton.setOnClickListener {
             binding.cameraCaptureButton.isEnabled = false
@@ -648,6 +648,21 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
     }
 
     private fun goToWinnerPage(){
+       val db = Firebase.firestore
+
+        val lobbyID = ExtraInfo.myLobbyID
+
+        val lobbyRef = db.collection("lobbies").document(lobbyID)
+        lobbyRef
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.get("player1") == ExtraInfo.myUsername) {
+                    lobbyRef.update("player1status","ended")
+                }
+                else
+                    lobbyRef.update("player2status", "ended")
+            }
+
         val intent = Intent(this, VersusWinnerActivity::class.java)
         startActivity(intent)
     }
