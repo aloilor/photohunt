@@ -107,7 +107,7 @@ def getLobbyById(lobby_id):
 
     return lobby
 
-@app.route('/get_lobby/<lobby_id>', methods=['GET'])
+@app.route('/get_lobby/<lobby_id>   ', methods=['GET'])
 def getLobbyEndpoint(lobby_id):
     print(lobby_id)
 
