@@ -453,26 +453,20 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
             MultipartBody.Part.createFormData("file", "$username-$objectToFind.jpg", requestFile)
 
         // response alert dialog
-        val customLayout: View = layoutInflater.inflate(R.layout.activity_hint, null)
-        val textResponse = customLayout.findViewById<TextView>(R.id.textResponse)
-        val secHintButton = customLayout.findViewById<Button>(R.id.newButton)
-        val dismissButton = customLayout.findViewById<Button>(R.id.dismissButton)
-        val messageDialog = AlertDialog.Builder(this).setView(customLayout)
+        val customLayout2: View = layoutInflater.inflate(R.layout.activity_dialog, null)
+        val textResponse = customLayout2.findViewById<TextView>(R.id.textResponse)
+        val nextButton= customLayout2.findViewById<Button>(R.id.nextButton)
+        val messageDialog = AlertDialog.Builder(this).setView(customLayout2)
 
         val dialog = messageDialog.create()
         dialog.setCanceledOnTouchOutside(false)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        // button for another hint
-        secHintButton.visibility = View.INVISIBLE
-        secHintButton.setOnClickListener {
-            textResponse.text = ""
-        }
 
         // button for dismiss alert dialog
         val homePageIntent = Intent(this, HomePageActivity::class.java)
-        dismissButton.text = "Next lvl"
-        dismissButton.setOnClickListener {
+        nextButton.text = "Next lvl"
+        nextButton.setOnClickListener {
             dialog.dismiss()
             Intent(this, VersusHuntActivity::class.java).also {
                 startActivity(it)
@@ -505,8 +499,8 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
                 if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
                     textResponse.text =
                         "Good job, you found the right object! You gained $score points. The game is ending though ):"
-                    dismissButton.text = "End Page"
-                    dismissButton.setOnClickListener {
+                    nextButton.text = "End Page"
+                    nextButton.setOnClickListener {
                         cleanup()
                         dialog.dismiss()
                         goToWinnerPage()
@@ -521,8 +515,8 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
                 if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
                     textResponse.text =
                         "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also, the game is ending"
-                    dismissButton.text = "End Page"
-                    dismissButton.setOnClickListener {
+                    nextButton.text = "End Page"
+                    nextButton.setOnClickListener {
                         cleanup()
                         dialog.dismiss()
                         goToWinnerPage()
@@ -534,8 +528,8 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
             } else {
                 textResponse.text =
                     "Your image hasn't been uploaded, something's wrong with the server ): "
-                dismissButton.text = "Home page"
-                dismissButton.setOnClickListener {
+                nextButton.text = "Home page"
+                nextButton.setOnClickListener {
                     cleanup()
                     dialog.dismiss()
                     startActivity(homePageIntent)
@@ -548,8 +542,8 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
         } catch (t: Throwable) {
             textResponse.text =
                 "Your image hasn't been uploaded, something's wrong with the server ): "
-            dismissButton.text = "Home page"
-            dismissButton.setOnClickListener {
+            nextButton.text = "Home page"
+            nextButton.setOnClickListener {
                 dialog.dismiss()
                 startActivity(homePageIntent)
             }
