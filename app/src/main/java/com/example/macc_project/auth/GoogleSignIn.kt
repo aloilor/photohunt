@@ -6,9 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import com.example.macc_project.ExtraInfo
+import com.example.macc_project.utilities.ExtraInfo
 import com.example.macc_project.HomePageActivity
-import com.example.macc_project.LobbyGame
 import com.example.macc_project.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient

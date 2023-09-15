@@ -1,4 +1,4 @@
-package com.example.macc_project
+package com.example.macc_project.photoHunt
 
 import android.app.ActivityManager
 import android.content.Intent
@@ -6,8 +6,10 @@ import android.opengl.GLSurfaceView
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import com.example.macc_project.utilities.ExtraInfo
+import com.example.macc_project.HomePageActivity
 import com.example.macc_project.databinding.ActivityWinnerBinding
-import com.example.macc_project.graphicsApp.CubeRenderer
+import com.example.macc_project.graphics.CubeRenderer
 
 class WinnerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityWinnerBinding

@@ -31,16 +31,16 @@
             android:name=".HowToPlayActivity"
             android:exported="false" />
         <activity
-            android:name=".WinnerActivity"
+            android:name=".photoHunt.WinnerActivity"
             android:exported="false" />
         <activity
-            android:name=".ScoreboardActivity"
+            android:name=".photoHunt.ScoreboardActivity"
             android:exported="false" />
         <activity
-            android:name=".LobbyGame"
+            android:name=".photoHunt.LobbyGame"
             android:exported="false" />
         <activity
-            android:name=".ApiService"
+            android:name=".utilities.ApiService"
             android:exported="false" />
         <activity
             android:name=".auth.GithubSignIn"
@@ -52,7 +52,7 @@
             android:name=".auth.Register"
             android:exported="false" />
         <activity
-            android:name=".Hunt1Activity"
+            android:name=".photoHunt.Hunt1Activity"
             android:exported="false" />
         <activity
             android:name=".auth.Login"
@@ -61,9 +61,9 @@
             android:name=".HomePageActivity"
             android:exported="false" />
         <activity
-            android:name=".VersusHuntActivity"
+            android:name=".photoHunt.VersusHuntActivity"
             android:exported="false" />
-        <activity android:name=".VersusWinnerActivity"
+        <activity android:name=".photoHunt.VersusWinnerActivity"
             android:exported="false"/>
         <activity
             android:name=".MainActivity"

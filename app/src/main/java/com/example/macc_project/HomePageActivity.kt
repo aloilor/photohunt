@@ -2,7 +2,6 @@ package com.example.macc_project
 
 import android.app.ActivityManager
 import android.app.AlertDialog
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.opengl.GLSurfaceView
 import android.os.Bundle
@@ -10,7 +9,11 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.macc_project.auth.Login
 import com.example.macc_project.databinding.ActivityHomePageBinding
-import com.example.macc_project.graphicsApp.CubeRenderer
+import com.example.macc_project.graphics.CubeRenderer
+import com.example.macc_project.photoHunt.Hunt1Activity
+import com.example.macc_project.photoHunt.LobbyGame
+import com.example.macc_project.photoHunt.ScoreboardActivity
+import com.example.macc_project.utilities.ExtraInfo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 

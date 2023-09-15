@@ -1,4 +1,4 @@
-package com.example.macc_project
+package com.example.macc_project.photoHunt
 
 
 import android.app.ActivityManager
@@ -9,7 +9,10 @@ import com.example.macc_project.databinding.ActivityVersusWinnerBinding
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import com.example.macc_project.graphicsApp.CubeRenderer
+import com.example.macc_project.utilities.ApiService
+import com.example.macc_project.utilities.ExtraInfo
+import com.example.macc_project.HomePageActivity
+import com.example.macc_project.graphics.CubeRenderer
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase

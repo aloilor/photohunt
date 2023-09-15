@@ -1,9 +1,10 @@
-package com.example.macc_project
+package com.example.macc_project.photoHunt
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -16,7 +17,6 @@ import android.location.LocationManager
 import android.net.Uri
 import com.google.android.gms.location.LocationRequest
 import android.os.Bundle
-import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
@@ -32,15 +32,19 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import com.example.macc_project.databinding.ActivityVersusHuntBinding
+import com.example.macc_project.utilities.ApiService
+import com.example.macc_project.utilities.ExtraInfo
+import com.example.macc_project.HomePageActivity
+import com.example.macc_project.R
+
+import com.example.macc_project.databinding.ActivityHunt1Binding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.firebase.FirebaseApp
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.EventListener
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
@@ -62,9 +66,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 
 
-
-
-class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, CoroutineScope {
+class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, CoroutineScope {
     private val REQUEST_IMAGE_CAPTURE = 1
 
     val PERMISSIONS_ALL = arrayOf<String>(
@@ -90,8 +92,6 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
     private lateinit var cameraExecutor: ExecutorService
 
     private var listener: ListenerRegistration? = null
-    private  var lobbyListener: ListenerRegistration? = null
-
 
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private var longitude: Double = 0.0
@@ -104,7 +104,7 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
 
 
     private lateinit var storage: FirebaseStorage
-    private lateinit var binding: ActivityVersusHuntBinding
+    private lateinit var binding: ActivityHunt1Binding
     private lateinit var apiService: ApiService
     private val db = FirebaseFirestore.getInstance()
 
@@ -115,15 +115,13 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
 
     private var hostname = "https://photohunt.loca.lt"
 
-
-
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.Main
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityVersusHuntBinding.inflate(layoutInflater)
+        binding = ActivityHunt1Binding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
@@ -142,33 +140,7 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
         mExtraInfo.setTimerUpdateListener(this)
         mExtraInfo.startTimer()
         binding.levelText.text = "Level ${ExtraInfo.myLevel}"
-        binding.scoreYouText.text = "Score: ${ExtraInfo.myScore}"
-        var scoreOpponent = "0"
-        val db = Firebase.firestore
-
-        val lobbyID = ExtraInfo.myLobbyID
-
-        val lobbyRef = db.collection("lobbies").document(lobbyID)
-
-        // Listen for changes in the lobby document
-        lobbyListener = lobbyRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.e(TAG, "Listen failed.", e)
-                return@addSnapshotListener
-            }
-
-            if (snapshot != null && snapshot.exists()) {
-                val player1Name = snapshot.getString("player1") ?: ""
-
-                if (player1Name == ExtraInfo.myUsername)
-                    scoreOpponent = snapshot.get("player2pts").toString()
-                else
-                    scoreOpponent = snapshot.get("player1pts").toString()
-                binding.scoreOpponentText.text = "Opponent: $scoreOpponent"
-            }
-        }
-
-        binding.scoreOpponentText.text = "Opponent: $scoreOpponent"
+        binding.scoreText.text = "Score: ${ExtraInfo.myScore}"
 
         binding.cameraCaptureButton.setOnClickListener {
             binding.cameraCaptureButton.isEnabled = false
@@ -193,9 +165,10 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
             }
         }
 
-        val okHttpClient = OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS).build()
-
         // Initialize Retrofit
+
+        val okHttpClient = OkHttpClient.Builder().connectTimeout(40, TimeUnit.SECONDS).build()
+
         val retrofit = Retrofit.Builder()
             .baseUrl(hostname)
             .addConverterFactory(GsonConverterFactory.create())
@@ -332,8 +305,6 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
     fun cleanup() {
         cameraExecutor.shutdown()
         mExtraInfo.stopTimer()
-        listener?.remove()
-        lobbyListener?.remove()
     }
 
     override fun onDestroy() {
@@ -377,8 +348,8 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val imageBitmap: Bitmap = BitmapFactory.decodeFile(photoFile.path)
-                    val imageresized = Bitmap.createScaledBitmap(imageBitmap, 224, 224, true)
                     // Convert the Bitmap to a byte array
+                    val imageresized = Bitmap.createScaledBitmap(imageBitmap, 224, 224, true)
                     val data = convertBitmapToByteArray(imageresized)
 
                     //Upload the image to the python server
@@ -400,62 +371,20 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
             })
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            val imageBitmap = data?.extras?.get("data") as Bitmap
-            val fileName = "image_${System.currentTimeMillis()}.jpg"
-            val storageRef = storage.reference.child("images").child(fileName)
-
-            // Convert the Bitmap to a byte array
-            val data = convertBitmapToByteArray(imageBitmap)
-
-            //call fun to send image to server with coroutine
-            launch {
-                uploadImageToServer(data)
-            }
-
-            // Upload the image to Firebase Storage
-            val uploadTask = storageRef.putBytes(data)
-            /*
-            uploadTask.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    storageRef.downloadUrl.addOnSuccessListener { uri ->
-                        val downloadUrl = uri.toString()
-                        Log.d("MainActivity", "Download URL: $downloadUrl")
-
-                        // Use the downloadUrl with Glide to load and display the image
-                        Glide.with(this)
-                            .load(downloadUrl)
-                            .error(R.drawable.img) // Set an error image if loading fails
-                            .into(binding.image)
-
-                        Toast.makeText(this, "Image uploaded successfully", Toast.LENGTH_SHORT)
-                            .show()
-                        // You can save the downloadUrl or use it to display the image later
-                    } } else {
-                    // Image upload failed
-                    val exception = task.exception
-                    // Handle the exception
-            */
-        }
-
-    }
-
     private suspend fun uploadImageToServer(data: ByteArray) {
         val mediaType = "image/jpeg".toMediaTypeOrNull()
         val requestFile = RequestBody.create(mediaType, data)
 
         var username = ExtraInfo.myUsername
 
-
         val body =
             MultipartBody.Part.createFormData("file", "$username-$objectToFind.jpg", requestFile)
 
         // response alert dialog
         val customLayout2: View = layoutInflater.inflate(R.layout.activity_dialog, null)
+
+        val nextButton = customLayout2.findViewById<Button>(R.id.nextButton)
         val textResponse = customLayout2.findViewById<TextView>(R.id.textResponse)
-        val nextButton= customLayout2.findViewById<Button>(R.id.nextButton)
         val messageDialog = AlertDialog.Builder(this).setView(customLayout2)
 
         val dialog = messageDialog.create()
@@ -468,7 +397,7 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
         nextButton.text = "Next lvl"
         nextButton.setOnClickListener {
             dialog.dismiss()
-            Intent(this, VersusHuntActivity::class.java).also {
+            Intent(this, Hunt1Activity::class.java).also {
                 startActivity(it)
             }
         }
@@ -507,14 +436,14 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
                     }
                 } else {
                     textResponse.text =
-                        "Good job, you found the right object! You gained $score points, now get to the next level. champ ;)"
+                        "Good job, you found the right object! You gained $score points, now get to the next level, champ ;)"
                 }
 
             } else if (response.code() == 250) {
                 println("Wrong object!")
                 if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
                     textResponse.text =
-                        "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also, the game is ending"
+                        "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also, the game is ending ):"
                     nextButton.text = "End Page"
                     nextButton.setOnClickListener {
                         cleanup()
@@ -535,10 +464,10 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
                     startActivity(homePageIntent)
                 }
             }
-            binding.scoreYouText.text = "Score: 0${ExtraInfo.myScore}"
-            addScoreDB()
-            ExtraInfo.updateLevel()
+            binding.scoreText.text = "Score: ${ExtraInfo.myScore}"
             dialog.show()
+            ExtraInfo.updateLevel()
+            addScoreDB()
         } catch (t: Throwable) {
             textResponse.text =
                 "Your image hasn't been uploaded, something's wrong with the server ): "
@@ -626,44 +555,21 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
 
     fun addScoreDB() {
         val db = Firebase.firestore
+        println(ExtraInfo.myEmail)
+        val userId = FirebaseAuth.getInstance().currentUser!!.uid
+        val userRef = db.collection("users").document(userId)
+        userRef.update("points", ExtraInfo.myScore)
+            .addOnSuccessListener {
+                println("score successfully updated")
 
-        val lobbyID = ExtraInfo.myLobbyID
-
-        val lobbyRef = db.collection("lobbies").document(lobbyID)
-        lobbyRef
-            .get()
-            .addOnSuccessListener { document ->
-                if (document.get("player1") == ExtraInfo.myUsername) {
-                    lobbyRef.update("player1pts",ExtraInfo.myScore)
-                }
-                else
-                    lobbyRef.update("player2pts", ExtraInfo.myScore)
             }
-    }
+            .addOnFailureListener { println("Error updating the score") }
 
+    }
     private fun goToWinnerPage(){
-       val db = Firebase.firestore
 
-        val lobbyID = ExtraInfo.myLobbyID
-
-        val lobbyRef = db.collection("lobbies").document(lobbyID)
-        lobbyRef
-            .get()
-            .addOnSuccessListener { document ->
-                if (document.get("player1") == ExtraInfo.myUsername) {
-                    lobbyRef.update("player1status","ended")
-                }
-                else
-                    lobbyRef.update("player2status", "ended")
-            }
-
-        val intent = Intent(this, VersusWinnerActivity::class.java)
+        val intent = Intent(this, WinnerActivity::class.java)
         startActivity(intent)
-    }
-
-
-    companion object {
-        private const val TAG = "VersusHuntActivity"
     }
 }
 

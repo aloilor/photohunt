@@ -1,4 +1,4 @@
-package com.example.macc_project.graphicsApp
+package com.example.macc_project.graphics
 
 import android.content.Context
 import android.opengl.GLES30

@@ -1,10 +1,11 @@
-package com.example.macc_project
+package com.example.macc_project.photoHunt
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import com.example.macc_project.utilities.ExtraInfo
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore

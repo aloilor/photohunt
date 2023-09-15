@@ -1,10 +1,11 @@
-package com.example.macc_project
+package com.example.macc_project.photoHunt
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.macc_project.R
 
 class ScoreboardAdapter(private val users: List<ScoreboardActivity.User>) : RecyclerView.Adapter<ScoreboardAdapter.ViewHolder>() {
 

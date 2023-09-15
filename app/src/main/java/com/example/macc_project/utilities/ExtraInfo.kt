@@ -1,6 +1,5 @@
-package com.example.macc_project
+package com.example.macc_project.utilities
 
-import android.icu.number.NumberFormatter.DecimalSeparatorDisplay
 import android.os.Handler
 import android.os.Looper
 
@@ -46,7 +45,7 @@ class ExtraInfo {
         }
 
         fun updateLevel(){
-            myLevel+=1
+            myLevel +=1
         }
     }
 

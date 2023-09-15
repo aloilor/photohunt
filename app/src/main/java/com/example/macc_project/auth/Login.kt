@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
-import com.example.macc_project.ExtraInfo
+import com.example.macc_project.utilities.ExtraInfo
 import com.example.macc_project.HomePageActivity
 import com.example.macc_project.R
 import com.example.macc_project.databinding.ActivityLoginBinding

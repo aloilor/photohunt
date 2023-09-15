@@ -1,10 +1,11 @@
-package com.example.macc_project
+package com.example.macc_project.photoHunt
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.macc_project.R
 import com.example.macc_project.databinding.ActivityScoreboardBinding
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query

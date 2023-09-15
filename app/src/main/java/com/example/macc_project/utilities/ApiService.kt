@@ -1,4 +1,4 @@
-package com.example.macc_project
+package com.example.macc_project.utilities
 
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody

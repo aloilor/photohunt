@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context=".WinnerActivity">
+    tools:context=".photoHunt.WinnerActivity">
 
 
     <LinearLayout
@@ -18,7 +18,7 @@
 
     </LinearLayout>
 
-    <com.example.macc_project.graphicsApp.MyGLSurfaceView
+    <com.example.macc_project.graphics.MyGLSurfaceView
         android:id="@+id/myGLSurfaceView"
         android:layout_width="match_parent"
         android:layout_marginBottom="200dp"

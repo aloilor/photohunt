@@ -1,13 +1,11 @@
-package com.example.macc_project.graphicsApp
+package com.example.macc_project.graphics
 
 import android.content.ContentValues.TAG
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.GLES30
 import android.opengl.GLUtils
 import android.util.Log
-import com.example.macc_project.HomePageActivity
 import com.example.macc_project.R
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
