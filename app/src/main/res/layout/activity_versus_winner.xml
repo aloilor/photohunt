@@ -16,26 +16,22 @@
         android:orientation="vertical"
         android:gravity="center">
 
+        <com.example.macc_project.graphicsApp.MyGLSurfaceView
+            android:id="@+id/myGLSurfaceView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="80dp" />
     </LinearLayout>
-
-    <com.example.macc_project.graphicsApp.MyGLSurfaceView
-        android:id="@+id/myGLSurfaceView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="150dp" />
 
 
     <TextView
         android:id="@+id/scoreTitleYou"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
+        android:layout_marginLeft="30dp"
         android:layout_marginTop="90dp"
         android:fontFamily="@font/electrolize"
         android:text="Your final score is:"
-        android:layout_centerHorizontal="true"
         android:textColor="@color/green"
         android:textSize="40sp"
         android:textStyle="bold" />
@@ -44,9 +40,8 @@
         android:id="@+id/scoreTitleOpp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="40dp"
-        android:layout_marginTop="550dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="450dp"
         android:fontFamily="@font/electrolize"
         android:text="Your opponent's final score is:"
         android:textColor="@color/green"
@@ -57,8 +52,8 @@
         android:id="@+id/scoreYou"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="170dp"
-        android:layout_marginTop="140dp"
+        android:layout_marginLeft="150dp"
+        android:layout_marginTop="180dp"
         android:fontFamily="@font/electrolize"
         android:text="30"
         android:textColor="@color/green"
@@ -69,8 +64,8 @@
         android:id="@+id/scoreOpp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="170dp"
-        android:layout_marginTop="650dp"
+        android:layout_marginLeft="150dp"
+        android:layout_marginTop="550dp"
         android:fontFamily="@font/electrolize"
         android:text="30"
         android:textColor="@color/green"
@@ -81,8 +76,8 @@
         android:id="@+id/pt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="215dp"
-        android:layout_marginTop="146dp"
+        android:layout_marginLeft="195dp"
+        android:layout_marginTop="190dp"
         android:fontFamily="@font/electrolize"
         android:text="pts"
         android:textColor="@color/green"
@@ -94,8 +89,8 @@
         android:id="@+id/pt2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="215dp"
-        android:layout_marginTop="656dp"
+        android:layout_marginLeft="195dp"
+        android:layout_marginTop="556dp"
         android:fontFamily="@font/electrolize"
         android:text="pts"
         android:textColor="@color/green"

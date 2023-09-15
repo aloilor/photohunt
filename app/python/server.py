@@ -96,7 +96,7 @@ def getLobbyById(lobby_id):
     lobbies_ref = db.collection("lobbies")
 
     # Query where "statusGame" is equal to "ended"
-    query = lobbies_ref.lobbies_ref.where("lobby_id", "==", lobby_id).where("status", "==", "ended").stream()
+    query = lobbies_ref.where("lobby_id", "==", lobby_id).where("statusGame", "==", "ended").stream()
 
     # Retrieve the lobby data, if found
     lobby = None
@@ -104,6 +104,7 @@ def getLobbyById(lobby_id):
         lobby = doc.to_dict()
         break
 
+    print(lobby)
     # Clean up Firebase SDK
     firebase_admin.delete_app(firebase_admin.get_app())
 
@@ -118,10 +119,11 @@ def getLobbyEndpoint():
         return jsonify({"error": "Lobby ID is missing."}), 400
 
     lobby = getLobbyById(lobby_id)
+    print(lobby)
 
     if lobby is None:
         return jsonify({"error": "Lobby not found or the status is not 'ended'."}), 404
-    print(lobby)
+    
 
     return jsonify(lobby)
 
