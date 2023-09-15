@@ -19,8 +19,6 @@ model_resnet50 = ResNet50(weights='imagenet')
 target_size = (224, 224)
 
 
-
-
 app = Flask(__name__)
 
 # Define the full path to the directory where you want to save uploaded files
@@ -86,7 +84,7 @@ def check_image(file):
 #Function to get data lobbies from firebase
 def getLobbyById(lobby_id):
     # Initialize Firebase credentials
-    cred= credentials.Certificate("C:\\Users\\Christian\\Desktop\\firebaseSDK.json")
+    cred = credentials.Certificate("./firebaseSDK.json")
     firebase_admin.initialize_app(cred)
 
     # Initialize Firestore
@@ -110,10 +108,9 @@ def getLobbyById(lobby_id):
 
     return lobby
 
-@app.route('/get_lobby', methods=['GET'])
-def getLobbyEndpoint():
-    # Get the lobby_id from the query parameters
-    lobby_id = request.args.get('lobby_id')
+@app.route('/get_lobby/<lobby_id>', methods=['GET'])
+def getLobbyEndpoint(lobby_id):
+    print(lobby_id)
 
     if not lobby_id:
         return jsonify({"error": "Lobby ID is missing."}), 400

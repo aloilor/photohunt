@@ -4,6 +4,7 @@ import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
+import retrofit2.http.Field
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -16,6 +17,6 @@ interface ApiService {
     @POST("upload")
     fun uploadImage(@Part image: MultipartBody.Part):Call <Void>
 
-    @GET("get_lobby/{lobby_id}")
+    @GET("/get_lobby/{lobby_id}")
     suspend fun getLobby(@Path("lobby_id") lobbyId: String):Response<ResponseBody>
 }
