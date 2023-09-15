@@ -97,7 +97,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
     private var longitude: Double = 0.0
     private var latitude: Double = 0.0
     private lateinit var mLocationRequest: LocationRequest
-    private val interval: Long = 500 // 10seconds
+    private val interval: Long = 5000 // 10seconds
     private val fastestInterval: Long = 3000 // 5 seconds
     private lateinit var mLocationCallback: LocationCallback
     private lateinit var mLastLocation: Location
@@ -157,8 +157,8 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
                 for (location in p0.locations) {
                     latitude = location.latitude
                     longitude = location.longitude
-                    //Log.w("lat+long,update:","Latitude: $latitude" )
-                    //Log.w("lat+long,update:","Longitude: $longitude" )
+                    Log.w("lat+long,update:","Latitude: $latitude" )
+                    Log.w("lat+long,update:","Longitude: $longitude" )
                     binding.latitudeText.text = String.format("Lat: %.2f", latitude)
                     binding.longitudeText.text = String.format("Long: %.2f", longitude)
                 }
@@ -214,8 +214,8 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
             mLocationRequest = LocationRequest.Builder(interval).setIntervalMillis(interval)
                 .setMinUpdateIntervalMillis(fastestInterval)
-                .setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY).build()
-            mFusedLocationClient.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY).build()
+            mFusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
                 .addOnCompleteListener(this) { task ->
                     mLastLocation = task.result
                     if (mLastLocation != null) {

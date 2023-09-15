@@ -242,8 +242,8 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
             mLocationRequest = LocationRequest.Builder(interval).setIntervalMillis(interval)
                 .setMinUpdateIntervalMillis(fastestInterval)
-                .setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY).build()
-            mFusedLocationClient.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY).build()
+            mFusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
                 .addOnCompleteListener(this) { task ->
                     mLastLocation = task.result
                     if (mLastLocation != null) {
