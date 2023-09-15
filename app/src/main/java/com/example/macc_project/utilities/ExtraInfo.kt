@@ -9,7 +9,7 @@ class ExtraInfo {
 
         var myUsername:String = ""
         var myLobbyID:String = "1"
-        var myTime:String = ""
+        var myTime:Int  = 0
         var myScore:Int = 0
         var myLevel:Int = 1
         var actualMilliseconds = 0
@@ -35,7 +35,7 @@ class ExtraInfo {
             myLobbyID = lobbyID.toString()
         }
 
-        fun setTime(time:String){
+        fun setTime(time:Int){
             myTime = time
         }
 
@@ -90,6 +90,8 @@ class ExtraInfo {
 
     fun startTimer() {
         println("Timer started")
+        actualMilliseconds = 0
+        println("Timerstarted :$actualMilliseconds")
         handler.post(updateTimer)
     }
 
@@ -99,6 +101,8 @@ class ExtraInfo {
         val timerSeconds = seconds
         val timerDeciseconds = deciseconds
         val timerMilliseconds = milliseconds
+
+        println("Timerended :$actualMilliseconds")
 
         milliseconds = 0
         deciseconds = 0

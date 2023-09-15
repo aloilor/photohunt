@@ -194,7 +194,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
     }
 
     override fun onTimerFinished(minutes: Int, seconds: Int, deciseconds: Int, milliseconds: Int) {
-        val finalTime = (seconds * 1000 + milliseconds).toString()
+        val finalTime = (seconds * 1000 + milliseconds)
         println("finaltime: $finalTime")
         ExtraInfo.setTime(finalTime)
     }
@@ -303,15 +303,14 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
     }
 
     fun cleanup() {
+        job.cancel()
         cameraExecutor.shutdown()
         mExtraInfo.stopTimer()
     }
 
     override fun onDestroy() {
+        cleanup()
         super.onDestroy()
-        job.cancel()
-        cameraExecutor.shutdown()
-        mExtraInfo.stopTimer()
     }
 
     private fun getOutputDirectory(): File {
@@ -414,6 +413,7 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
             if (response.code() == 200) {
                 println("Object Found!")
+                println("setting the score: ${ExtraInfo.actualMilliseconds}")
                 if (ExtraInfo.actualMilliseconds <= ExtraInfo.scoreThreshold1ms) {
                     ExtraInfo.setScore(ExtraInfo.scoreThreshold1pts)
                     score = ExtraInfo.scoreThreshold1pts
@@ -441,6 +441,8 @@ class Hunt1Activity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, Corout
 
             } else if (response.code() == 250) {
                 println("Wrong object!")
+                println("setting the score: ${ExtraInfo.actualMilliseconds}")
+
                 if (ExtraInfo.myLevel == ExtraInfo.MAX_LEVEL) {
                     textResponse.text =
                         "Tough luck buddy, that's not the right object and you lost 1 point (if you had any)! Also, the game is ending ):"

@@ -222,7 +222,7 @@ class VersusHuntActivity : AppCompatActivity(), ExtraInfo.TimerUpdateListener, C
     }
 
     override fun onTimerFinished(minutes: Int, seconds: Int, deciseconds: Int, milliseconds: Int) {
-        val finalTime = (seconds * 1000 + milliseconds).toString()
+        val finalTime = (seconds * 1000 + milliseconds)
         println("finaltime: $finalTime")
         ExtraInfo.setTime(finalTime)
     }
