@@ -103,8 +103,8 @@ class GoogleSignIn : AppCompatActivity() {
         db.collection("users").document(currentUser.uid)
             .set(user)
             .addOnSuccessListener {
-                currentUser.email?.let { it1 -> ExtraInfo.setEmail(it1) }
-                currentUser.displayName!!.replace(" ", "").let { it1 -> ExtraInfo.setUsername(it1) }
+                ExtraInfo.setEmail(currentUser.email!!)
+                ExtraInfo.setUsername(currentUser.displayName!!.replace(" ", ""))
                 goToHomepage()
 
                 Toast.makeText(
