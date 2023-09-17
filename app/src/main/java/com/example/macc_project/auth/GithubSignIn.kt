@@ -54,8 +54,12 @@ class GithubSignIn : AppCompatActivity() {
                     }
                 }
                 .addOnFailureListener {
-                    Log.w(TAG, "Login with Github failed")
-                }
+                        e ->
+                    Log.w(
+                        ContentValues.TAG,
+                        "Login with GitHub failed",
+                        e
+                    )                }
         }
 
     }
@@ -111,7 +115,7 @@ class GithubSignIn : AppCompatActivity() {
             .addOnSuccessListener {
 
                 ExtraInfo.setUsername(username)
-                currentUser.email?.let { it1 -> ExtraInfo.setEmail(it1) }
+                ExtraInfo.setEmail(currentUser.email!!)
 
                 val intent = Intent(this, HomePageActivity::class.java)
                 intent.putExtra("username", username)

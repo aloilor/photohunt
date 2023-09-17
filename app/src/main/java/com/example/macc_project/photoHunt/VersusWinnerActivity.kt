@@ -82,23 +82,45 @@ class VersusWinnerActivity : AppCompatActivity(){
 
         val lobbyRef = db.collection("lobbies").document(lobbyID)
 
-        // Listen for changes in the lobby document
-        lobbyListener = lobbyRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.e(TAG, "Listen failed.", e)
-                return@addSnapshotListener
-            }
-            if (snapshot != null && snapshot.exists()) {
-                val player1Name = snapshot.getString("player1") ?: ""
-                val player1status = snapshot.getString("player1status")
-                val player2status = snapshot.getString("player2status")
+        var player1status = ""
+        var player2status = ""
+        var lobbyStatus = ""
 
-                if (player1status == "ended" && player2status == "ended") {
-                    lobbyRef.update("statusGame", "ended")
-                    lobbyListener?.remove()
-                    coroutineScope.launch(Dispatchers.Main) {
-                        val lobbyId = ExtraInfo.myLobbyID
-                        getScores(lobbyId)
+
+        lobbyRef
+            .get()
+            .addOnSuccessListener { document ->
+                player1status = document.getString("player1status")!!
+                player2status = document.getString("player2status")!!
+                lobbyStatus = document.getString("statusGame")!!
+            }
+
+        if (player1status == "ended" && player2status == "ended" ) {
+            lobbyRef.update("statusGame", "ended")
+            coroutineScope.launch(Dispatchers.Main) {
+                val lobbyId = ExtraInfo.myLobbyID
+                getScores(lobbyId)
+            }
+        }
+
+        else {
+            // Listen for changes in the lobby document
+            lobbyListener = lobbyRef.addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e(TAG, "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null && snapshot.exists()) {
+                    val player1status = snapshot.getString("player1status")
+                    val player2status = snapshot.getString("player2status")
+
+                    if (player1status == "ended" && player2status == "ended") {
+                        lobbyRef.update("statusGame", "ended")
+                        lobbyListener?.remove()
+                        coroutineScope.launch(Dispatchers.Main) {
+                            val lobbyId = ExtraInfo.myLobbyID
+                            getScores(lobbyId)
+                        }
                     }
                 }
             }
