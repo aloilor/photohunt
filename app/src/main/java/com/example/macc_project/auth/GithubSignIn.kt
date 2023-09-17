@@ -47,7 +47,7 @@ class GithubSignIn : AppCompatActivity() {
             auth
                 .startActivityForSignInWithProvider(this, provider.build())
                 .addOnSuccessListener {
-                    Log.d(GoogleSignIn.TAG, "Login with GitHub success")
+                    Log.d(TAG, "Login with GitHub success")
                     val userFirebase = auth.currentUser
                     if (userFirebase != null) {
                         addUserToDB(userFirebase)
@@ -123,7 +123,7 @@ class GithubSignIn : AppCompatActivity() {
             }
             .addOnFailureListener { e ->
                 Log.w(
-                    ContentValues.TAG,
+                    TAG,
                     "Error during the registration",
                     e
                 )
