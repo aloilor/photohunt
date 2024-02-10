@@ -12,13 +12,17 @@ PhotoHunt is an engaging mobile application designed to offer users an exhilarat
 - **Image Recognition**: The app utilizes deep learning with Keras and ResNet50 to classify and verify the captured images, ensuring the correct objects are found.
 - **OpenGL Graphics**: The app employs OpenGL ES to render 3D cubes with textures, enhancing the visual appeal.
 
+<p align="center">
+  <img src="./assets/compete_page1.jpg" width="300" alt="Alt Text">
+</p>
+
+
 ## Technlogies Used
 - Kotlin
 - Flask (+Python)
 - OpenGL ES
 - Keras
 - Firebase 
-
 
 ## How to Use
 1. **Clone the Repository**: Clone this repository to your local machine.
