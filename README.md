@@ -31,7 +31,7 @@ PhotoHunt is an engaging mobile application designed to offer users an exhilarat
 - Keras
 - Firebase 
 
-## How to Use
+## How to Run
 1. **Clone the Repository**: Clone this repository to your local machine.
 2. **Install Dependencies**: Ensure you have Android Studio installed and set up.
 3. **Build and Run**: Open the project in Android Studio, build the app, and run it on your Android device or emulator.
