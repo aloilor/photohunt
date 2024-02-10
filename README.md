@@ -2,6 +2,10 @@
 
 **PhotoHunt** is an exciting mobile application developed as part of the Mobile Applications and Cloud Computing course. Built using Kotlin and Android Studio, PhotoHunt combines real-world exploration with advanced technology to create a captivating gaming experience.
 
+<p align="center">
+  <img src="./assets/home_page.jpg" width="300" alt="Alt Text">
+</p>
+
 ## Key Features
 
 - **Treasure Hunt Adventure**: PhotoHunt is a modern twist on the classic treasure hunt. Users embark on quests to find randomly generated objects using their device's camera.
