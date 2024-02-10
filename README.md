@@ -11,6 +11,13 @@ PhotoHunt is an engaging mobile application designed to offer users an exhilarat
 - **Location-Based Discovery**: PhotoHunt integrates GPS coordinates to aid users in locating objects and provides hints for added guidance.
 - **Image Recognition**: The app utilizes deep learning with Keras and ResNet50 to classify and verify the captured images, ensuring the correct objects are found.
 - **OpenGL Graphics**: The app employs OpenGL ES to render 3D cubes with textures, enhancing the visual appeal.
+- **Time-Sensitive Scoring**: Scores are updated in real-time as users progress through rounds, factoring in the time taken to find and photograph target objects.
+- **Database-Driven Hint System**: A dynamic hint system operates asynchronously, utilizing database communication to assist users in their treasure hunt adventure.
+
+
+
+
+
 
 <p align="center">
   <img src="./assets/compete_page1.jpg" width="300" alt="Alt Text">
